@@ -1,0 +1,7 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: controller-logger-application
+
+
