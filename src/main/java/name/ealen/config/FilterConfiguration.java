@@ -52,6 +52,7 @@ public class FilterConfiguration {
                         "\",\"RequestMethod\":\"" + request.getMethod() +
                         "\",\"ClientIp\":\"" + HttpUtil.getIpAddress(request) +
                         "\",\"Content-Type\":\"" + request.getContentType() +
+                        "\",\"UserAgent\":\"" + request.getHeader("user-agent") +
                         "\"}");
                 chain.doFilter(request, response);
             }
