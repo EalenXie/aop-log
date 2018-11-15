@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 
 /**
@@ -14,8 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class SayHelloController {
 
 
+    /**
+     * 异常测试
+     */
     @RequestMapping("/sayHello")
     public String sayHello() {
+//        throw new NullPointerException();
+//        throw new StackOverflowError();
+//        throw new HttpServerErrorException(HttpStatus.GATEWAY_TIMEOUT);
+//        throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
         return "hello world";
     }
 

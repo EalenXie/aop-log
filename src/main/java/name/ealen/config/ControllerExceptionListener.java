@@ -1,0 +1,70 @@
+package name.ealen.config;
+
+import com.alibaba.fastjson.JSON;
+import name.ealen.util.CommonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by EalenXie on 2018/11/8 16:25.
+ * 全局异常、错误返回处理
+ */
+@ControllerAdvice
+public class ControllerExceptionListener {
+
+    private final Logger log = LoggerFactory.getLogger(ControllerExceptionListener.class);
+
+
+    @ExceptionHandler(value = Throwable.class)
+    public ResponseEntity Throwable(Throwable throwable) {
+        Map<String, String> resultMap = getThrowable(throwable);
+        return new ResponseEntity<>(JSON.toJSON(resultMap).toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(value = HttpServerErrorException.class)
+    public ResponseEntity HttpServerErrorException(HttpServerErrorException serverError) {
+        Map<String, String> resultMap = getThrowable(serverError);
+        HttpStatus status = serverError.getStatusCode();
+        resultMap.put("responseBody", "" + serverError.getResponseBodyAsString());
+        resultMap.put("statusCode", "" + status.toString());
+        resultMap.put("statusText", "" + serverError.getStatusText());
+        resultMap.put("statusReasonPhrase", "" + status.getReasonPhrase());
+        return new ResponseEntity<>(JSON.toJSON(resultMap).toString(), status);
+    }
+
+    @ExceptionHandler(value = HttpClientErrorException.class)
+    public ResponseEntity HttpClientErrorException(HttpClientErrorException clientError) {
+        Map<String, String> resultMap = getThrowable(clientError);
+        HttpStatus status = clientError.getStatusCode();
+        resultMap.put("responseBody", "" + clientError.getResponseBodyAsString());
+        resultMap.put("statusCode", "" + clientError.getStatusCode().toString());
+        resultMap.put("statusText", "" + clientError.getStatusText());
+        resultMap.put("statusReasonPhrase", "" + status.getReasonPhrase());
+        return new ResponseEntity<>(JSON.toJSON(resultMap).toString(), status);
+    }
+
+
+    /**
+     * 公共异常信息
+     */
+    private Map<String, String> getThrowable(Throwable throwable) {
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("throwable", "" + throwable);
+        resultMap.put("throwableTime", "" + CommonUtil.getCurrentDateTime());
+        resultMap.put("message", "" + throwable.getMessage());
+        resultMap.put("localizedMessage", "" + throwable.getLocalizedMessage());
+        log.error("Exception : {}", JSON.toJSON(resultMap));
+        throwable.printStackTrace();
+        return resultMap;
+    }
+}

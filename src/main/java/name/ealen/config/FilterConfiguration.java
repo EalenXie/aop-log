@@ -1,6 +1,6 @@
 package name.ealen.config;
 
-import name.ealen.util.HttpUtil;
+import name.ealen.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +13,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Created by EalenXie on 2018/9/7 15:56.
@@ -46,14 +47,17 @@ public class FilterConfiguration {
                 HttpServletResponse response = (HttpServletResponse) servletResponse;
                 String requestId = request.getHeader("Request-Id");
                 if (requestId == null) requestId = request.getRequestedSessionId();
-                System.out.println();
-                log.info("Http Request Request-Id : " + requestId);
-                log.info("Http Request Information : {\"URI\":\"" + request.getRequestURL() +
-                        "\",\"RequestMethod\":\"" + request.getMethod() +
-                        "\",\"ClientIp\":\"" + HttpUtil.getIpAddress(request) +
-                        "\",\"Content-Type\":\"" + request.getContentType() +
-                        "\",\"UserAgent\":\"" + request.getHeader("user-agent") +
-                        "\"}");
+                if (requestId == null) requestId = UUID.randomUUID().toString();
+                if (!"OPTIONS".equalsIgnoreCase(request.getMethod())) {
+                    System.out.println();
+                    log.info("Http Request Request-Id : " + requestId);
+                    log.info("Http Request Information : {\"URI\":\"" + request.getRequestURL() +
+                            "\",\"RequestMethod\":\"" + request.getMethod() +
+                            "\",\"ClientIp\":\"" + CommonUtil.getIpAddress(request) +
+                            "\",\"Content-Type\":\"" + request.getContentType() +
+                            "\",\"UserAgent\":\"" + request.getHeader("user-agent") +
+                            "\"}");
+                }
                 chain.doFilter(request, response);
             }
 
