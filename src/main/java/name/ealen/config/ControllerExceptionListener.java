@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,10 +24,17 @@ public class ControllerExceptionListener {
 
     private final Logger log = LoggerFactory.getLogger(ControllerExceptionListener.class);
 
-
     @ExceptionHandler(value = Throwable.class)
-    public ResponseEntity Throwable(Throwable throwable) {
+    public ResponseEntity Throwable(Throwable throwable, HttpServletRequest request) {
         Map<String, String> resultMap = getThrowable(throwable);
+        if (request != null) {
+            Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
+            resultMap.put("Requester-Ip", CommonUtil.getIpAddress(request));
+            resultMap.put("Requester-Agent", request.getHeader("user-agent"));
+            if (statusCode != null) {
+                new ResponseEntity<>(JSON.toJSON(resultMap).toString(), HttpStatus.valueOf(statusCode));
+            }
+        }
         return new ResponseEntity<>(JSON.toJSON(resultMap).toString(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
