@@ -8,6 +8,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +56,7 @@ public class FilterConfiguration {
                             "\",\"RequestMethod\":\"" + request.getMethod() +
                             "\",\"ClientIp\":\"" + CommonUtil.getIpAddress(request) +
                             "\",\"Content-Type\":\"" + request.getContentType() +
-                            "\",\"UserAgent\":\"" + request.getHeader("user-agent") +
+                            "\",\"UserAgent\":\"" + request.getHeader(HttpHeaders.USER_AGENT) +
                             "\"}");
                 }
                 chain.doFilter(request, response);
