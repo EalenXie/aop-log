@@ -1,6 +1,7 @@
 package name.ealen.config;
 
 import com.alibaba.fastjson.JSON;
+import name.ealen.model.ExceptionResponse;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -42,22 +43,23 @@ public class ControllerInterceptor {
         String method = pjp.getSignature().getName();
         Object result;
         try {
-            result = pjp.proceed();
-            log.info("RequestTarget : " + getAppName() + "." + name + "." + method);
             Object[] requestParams = pjp.getArgs();
+            log.info(String.format("RequestTarget : %s.%s.%s", getAppName(), name, method));
             if (requestParams.length > 0) {     //日志打印请求参数
                 try {
                     log.info("RequestParam : {}", JSON.toJSON(requestParams));
+                    ExceptionResponse.getCurrentException().setRequestBody(JSON.toJSON(requestParams).toString());
                 } catch (Exception e) {
                     for (Object param : requestParams) {
                         try {
                             log.info("RequestParam : {}", JSON.toJSON(param));
                         } catch (Exception ig) {
-                            log.info("RequestParam : {}", param.toString());
+                            log.info("RequestParam : {}", param);
                         }
                     }
                 }
             }
+            result = pjp.proceed();
         } finally {
             log.info("Internal Method Cost Time: {}ms", System.currentTimeMillis() - startTime);
         }
