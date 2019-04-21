@@ -60,6 +60,12 @@ public class ControllerInterceptor {
                 }
             }
             result = pjp.proceed();
+            try {
+                ExceptionResponse.getCurrentException().setResponseBody(JSON.toJSONString(result));
+                log.info("ResponseBody: {}", JSON.toJSONString(result));
+            } catch (Exception ignore) {
+                log.info("Exception ignore");
+            }
         } finally {
             log.info("Internal Method Cost Time: {}ms", System.currentTimeMillis() - startTime);
         }

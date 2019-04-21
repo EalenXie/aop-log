@@ -1,10 +1,25 @@
-1. This is a simple example of AOP and Filter interception, which contains log processing and printing of Http requests that should be logged
+HTTP请求日志与异常记录
+==================
 
-    base on Spring Boot 2.0.1
-  
-2. When you use this example in your own project, modify it to your own AOP interceptor expression
-    
-    The AOP interceptor expression for this example is in ControllerInterceptor.java with an execution (* name.ealen.web.*.*(..)))
+#### 这是AOP和过滤器拦截的一个简单例子，它包含对请求日志处理，以及异常的统一处理，当异常发生时，本例可以返回一个统一的自定义异常标准，和异常的记录。
+
+##### 实现的核心为 `@ControllerAdvice`注解，AOP以及Filter。主要目的是当发生异常时，能够迅速排查异常的原因，不用搭建ELKG，不用上服务器查看日志。
+
+主要实现效果如下 : 
+
+##### 1. 请求正常时，日志会记录请求的参数，响应的参数，内部方法耗时等。
+
+ ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421103527296-533347000.png)
+
+##### 2. 发生异常时；比如我们请求第三方接口遇到抛出的`HttpServerErrorException`或者`HttpClientErrorException`，比如常见的504异常。
+ ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421104408425-1760059853.png)
+
+##### 3. 数据库中记录该异常。
+ ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421111006164-1287847065.png)
+
+##### 4. 常见的参数校验异常。
+ ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421111659123-1658996597.png)
+
 
 
 

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
+import java.sql.SQLException;
+
 
 /**
  * Created by EalenXie on 2018/9/7 14:24.
@@ -17,28 +19,31 @@ import org.springframework.web.client.HttpServerErrorException;
 public class SayHelloController {
 
 
+    @RequestMapping("/sayHello")
+    public ResponseEntity<?> sayHello(@RequestBody Person o) {
+        return ResponseEntity.ok(o);
+    }
+
     /**
      * 异常测试
      */
-    @RequestMapping("/sayHello")
-    public String sayHello() {
-//        throw new NullPointerException();
-//        throw new StackOverflowError();
+    @RequestMapping("/sayHelloHttpServerErrorException")
+    public String sayHelloHttpServerErrorException() {
         throw new HttpServerErrorException(HttpStatus.GATEWAY_TIMEOUT);
-//        throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
-//        return "hello world";
     }
 
-    @RequestMapping("/say")
-    public ResponseEntity<?> say(@RequestBody Object o) {
-//        throw new StackOverflowError();
-        return new ResponseEntity<>(o, HttpStatus.OK);
+    @RequestMapping("/sayHelloStackOverflowError")
+    public ResponseEntity<?> sayHelloStackOverflowError() {
+        throw new StackOverflowError();
     }
 
-    @RequestMapping("/sayPerson")
-    public ResponseEntity<?> sayHelloWithParams(@RequestBody @Validated Person o) {
-        System.out.println("111");
-//        throw new StackOverflowError();
+    @RequestMapping("/sayHelloSqlException")
+    public ResponseEntity<?> sayHelloSqlException() throws SQLException {
+        throw new SQLException();
+    }
+
+    @RequestMapping("/sayHelloValidate")
+    public ResponseEntity<?> sayHelloValidate(@RequestBody @Validated Person o) {
         return new ResponseEntity<>(o, HttpStatus.OK);
     }
 

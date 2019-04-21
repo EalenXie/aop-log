@@ -8,10 +8,10 @@ import javax.validation.constraints.NotNull;
  */
 public class Person {
 
-    @NotNull
+    @NotEmpty
     private String username;
 
-    @NotEmpty
+    @NotNull
     private Integer age;
 
     public String getUsername() {

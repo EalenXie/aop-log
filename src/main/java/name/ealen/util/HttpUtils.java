@@ -76,8 +76,6 @@ public class HttpUtils {
     public static String getAddressByIp(String ip) {
         if (ip == null) return null;
         HttpURLConnection connection = null;
-
-
         try{
             URL url = new URL("http://ip.taobao.com/service/getIpInfo.php?ip=" + ip);
             connection = (HttpURLConnection) url.openConnection();

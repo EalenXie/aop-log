@@ -20,10 +20,7 @@ import javax.annotation.Resource;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by EalenXie on 2018/11/8 16:25.
@@ -39,7 +36,6 @@ public class ControllerExceptionListener {
 
     @ExceptionHandler(value = Throwable.class)
     public ResponseEntity throwable(Throwable throwable, HttpServletRequest request) {
-
         ExceptionResponse response = ExceptionResponse.getCurrentException();
         try {
             response.setThrowable("" + throwable);
@@ -58,7 +54,9 @@ public class ControllerExceptionListener {
             }
             if (throwable instanceof MethodArgumentNotValidException) {
                 MethodArgumentNotValidException exception = ((MethodArgumentNotValidException) throwable);
-                response.setRequestBody(JSON.toJSON(exception.getBindingResult().getTarget()).toString());
+                if (!Objects.isNull(exception.getBindingResult().getTarget())) {
+                    response.setRequestBody(JSON.toJSON(exception.getBindingResult().getTarget()).toString());
+                }
                 List<FieldError> fieldErrors = ((MethodArgumentNotValidException) throwable).getBindingResult().getFieldErrors();
                 Map<String, String> params = new HashMap<>();
                 response.setErrorParams(JSON.toJSON(params));
