@@ -51,7 +51,7 @@ public class ExceptionResponse implements Serializable {
     private ExceptionResponse() {
     }
 
-    public static ExceptionResponse getCurrentException() {
+    public static synchronized ExceptionResponse getCurrentException() {
         ExceptionResponse response = EXCEPTION_RESPONSE.get();
         if (response == null) response = new ExceptionResponse();
         return response;
