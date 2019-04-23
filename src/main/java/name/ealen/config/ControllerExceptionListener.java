@@ -85,6 +85,8 @@ public class ControllerExceptionListener {
             responseService.asyncAddExceptionResponse(response);
         } catch (Exception ignore) {
             log.info("Exception ignore");
+        } finally {
+            ExceptionResponse.removeExceptionResponse();
         }
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatusCode()));
     }

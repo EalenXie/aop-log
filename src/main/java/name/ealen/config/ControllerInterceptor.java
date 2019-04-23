@@ -34,6 +34,22 @@ public class ControllerInterceptor {
     }
 
     /**
+     * 获取Application Profiles
+     */
+    private String getApplicationProfile() {
+        StringBuilder profile = new StringBuilder(environment.getDefaultProfiles()[0]);
+        if (environment.getActiveProfiles().length != 0) {
+            profile = new StringBuilder(environment.getActiveProfiles()[0]);
+            if (environment.getActiveProfiles().length > 1) {
+                for (int i = 1; i < environment.getActiveProfiles().length; i++) {
+                    profile.append(",").append(environment.getActiveProfiles()[i]);
+                }
+            }
+        }
+        return profile.toString();
+    }
+
+    /**
      * 注意 : pjp.proceed()执行的异常请务必抛出，交由ControllerAdvice捕捉到并处理
      */
     @Around(value = "execution (*  name.ealen.web.*.*(..))")
@@ -44,7 +60,7 @@ public class ControllerInterceptor {
         Object result;
         try {
             Object[] requestParams = pjp.getArgs();
-            log.info(String.format("RequestTarget : %s.%s.%s", getAppName(), name, method));
+            log.info(String.format("RequestTarget : %s start with %s %s.%s", getAppName(), getApplicationProfile(), name, method));
             if (requestParams.length > 0) {     //日志打印请求参数
                 try {
                     log.info("RequestParam : {}", JSON.toJSON(requestParams));
@@ -64,7 +80,9 @@ public class ControllerInterceptor {
                 ExceptionResponse.getCurrentException().setResponseBody(JSON.toJSONString(result));
                 log.info("ResponseBody: {}", JSON.toJSONString(result));
             } catch (Exception ignore) {
-                log.info("Exception ignore");
+                log.info("ResponseBody Exception ignore");
+            } finally {
+                ExceptionResponse.removeExceptionResponse();
             }
         } finally {
             log.info("Internal Method Cost Time: {}ms", System.currentTimeMillis() - startTime);
