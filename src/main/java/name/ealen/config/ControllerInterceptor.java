@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-
 /**
  * Created by EalenXie on 2018/9/7 14:19.
  * AOP打印日志 : 请求的对象,请求参数,返回数据,请求状态,内部方法耗时
@@ -21,32 +19,34 @@ import javax.annotation.Resource;
 public class ControllerInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerInterceptor.class);
+    private final String profiles;
+    private final String appName;
 
-    @Resource
-    private Environment environment;
-
-    private String getAppName() {
-        try {
-            return environment.getProperty("spring.application.name");
-        } catch (Exception ignore) {
-            return "unnamed";
+    public ControllerInterceptor(Environment environment) {
+        String[] defaultProfiles = environment.getDefaultProfiles();
+        String[] activeProfiles = environment.getActiveProfiles();
+        StringBuilder profile = new StringBuilder(defaultProfiles[0]);
+        if (defaultProfiles.length > 1) {
+            for (int i = 1; i < defaultProfiles.length; i++) {
+                profile.append(",").append(defaultProfiles[i]);
+            }
         }
-    }
-
-    /**
-     * 获取Application Profiles
-     */
-    private String getApplicationProfile() {
-        StringBuilder profile = new StringBuilder(environment.getDefaultProfiles()[0]);
-        if (environment.getActiveProfiles().length != 0) {
-            profile = new StringBuilder(environment.getActiveProfiles()[0]);
-            if (environment.getActiveProfiles().length > 1) {
-                for (int i = 1; i < environment.getActiveProfiles().length; i++) {
-                    profile.append(",").append(environment.getActiveProfiles()[i]);
+        if (activeProfiles.length != 0) {
+            profile = new StringBuilder(activeProfiles[0]);
+            if (activeProfiles.length > 1) {
+                for (int i = 1; i < activeProfiles.length; i++) {
+                    profile.append(",").append(activeProfiles[i]);
                 }
             }
         }
-        return profile.toString();
+        this.profiles = profile.toString();
+        String applicationName;
+        try {
+            applicationName = environment.getProperty("spring.application.name");
+        } catch (Exception ignore) {
+            applicationName = "unnamed";
+        }
+        this.appName = applicationName;
     }
 
     /**
@@ -60,7 +60,7 @@ public class ControllerInterceptor {
         Object result;
         try {
             Object[] requestParams = pjp.getArgs();
-            log.info(String.format("RequestTarget : %s start with %s %s.%s", getAppName(), getApplicationProfile(), name, method));
+            log.info(String.format("RequestTarget : %s start with %s %s.%s", appName, profiles, name, method));
             if (requestParams.length > 0) {     //日志打印请求参数
                 try {
                     log.info("RequestParam : {}", JSON.toJSON(requestParams));
