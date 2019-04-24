@@ -47,10 +47,6 @@ public class ExceptionResponse implements Serializable {
     @Transient
     private transient Object errorParams;
 
-
-    private ExceptionResponse() {
-    }
-
     public static synchronized ExceptionResponse getCurrentException() {
         ExceptionResponse response = EXCEPTION_RESPONSE.get();
         if (response == null) {
