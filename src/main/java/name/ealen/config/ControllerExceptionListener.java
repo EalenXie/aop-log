@@ -1,11 +1,10 @@
 package name.ealen.config;
 
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import name.ealen.model.ExceptionResponse;
 import name.ealen.service.ExceptionResponseService;
 import name.ealen.util.HttpUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,10 @@ import javax.annotation.Resource;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -27,9 +29,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * 全局异常、错误返回处理
  */
 @ControllerAdvice
+@Slf4j
 public class ControllerExceptionListener {
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerInterceptor.class);
 
     @Resource
     private ExceptionResponseService responseService;
