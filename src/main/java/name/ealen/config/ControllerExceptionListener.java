@@ -13,8 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.annotation.Resource;
 import javax.servlet.RequestDispatcher;
@@ -65,19 +64,12 @@ public class ControllerExceptionListener {
                 }
                 response.setErrorParams(JSON.toJSON(params));
                 response.setStatusCode(HttpStatus.BAD_REQUEST.value());
-            } else if (throwable instanceof HttpServerErrorException) {
-                HttpServerErrorException serverError = (HttpServerErrorException) throwable;
-                HttpStatus status = serverError.getStatusCode();
-                response.setResponseBody("" + serverError.getResponseBodyAsString());
+            } else if (throwable instanceof HttpStatusCodeException) {
+                HttpStatusCodeException httpException = (HttpStatusCodeException) throwable;
+                HttpStatus status = httpException.getStatusCode();
+                response.setResponseBody("" + httpException.getResponseBodyAsString());
                 response.setStatusCode(status.value());
-                response.setStatusText("" + serverError.getStatusText());
-                response.setStatusReasonPhrase(status.getReasonPhrase());
-            } else if (throwable instanceof HttpClientErrorException) {
-                HttpClientErrorException clientError = (HttpClientErrorException) throwable;
-                HttpStatus status = clientError.getStatusCode();
-                response.setResponseBody("" + clientError.getResponseBodyAsString());
-                response.setStatusCode(status.value());
-                response.setStatusText("" + clientError.getStatusText());
+                response.setStatusText("" + httpException.getStatusText());
                 response.setStatusReasonPhrase(status.getReasonPhrase());
             } else if (throwable instanceof SQLException) {
                 response.setStatusText(((SQLException) throwable).getSQLState());
