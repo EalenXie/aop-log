@@ -20,6 +20,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by EalenXie on 2018/11/8 16:25.
@@ -42,14 +43,13 @@ public class ControllerExceptionListener {
             response.setLocalizedMessage(throwable.getLocalizedMessage());
             response.setMessage(throwable.getMessage());
             log.error("Exception printStackTrace", throwable);
-            if (request != null) {
+            if (Objects.nonNull(request)) {
                 response.setRequesterIp(HttpUtils.getIpAddress(request));
                 response.setRequestUrl(request.getRequestURL().toString());
                 response.setRequestMethod(request.getMethod());
                 response.setUserAgent(request.getHeader(HttpHeaders.USER_AGENT));
                 Integer statusCode = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-                if (statusCode != null) response.setStatusCode(statusCode);
-                else response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                if (Objects.nonNull(statusCode)) response.setStatusCode(statusCode);
             }
             if (throwable instanceof MethodArgumentNotValidException) {
                 MethodArgumentNotValidException exception = ((MethodArgumentNotValidException) throwable);
@@ -57,7 +57,7 @@ public class ControllerExceptionListener {
                     response.setRequestBody(JSON.toJSON(exception.getBindingResult().getTarget()).toString());
                 }
                 List<FieldError> fieldErrors = ((MethodArgumentNotValidException) throwable).getBindingResult().getFieldErrors();
-                Map<String, String> params = new HashMap<>();
+                Map<String, String> params = new ConcurrentHashMap<>();
                 response.setErrorParams(JSON.toJSON(params));
                 for (FieldError error : fieldErrors) {
                     params.put(error.getField(), error.getDefaultMessage());
@@ -74,6 +74,8 @@ public class ControllerExceptionListener {
             } else if (throwable instanceof SQLException) {
                 response.setStatusText(((SQLException) throwable).getSQLState());
             }
+            if (Objects.isNull(response.getStatusCode()))
+                response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseService.asyncAddExceptionResponse(response);
         } catch (Exception ignore) {
             log.info("Exception ignore");
