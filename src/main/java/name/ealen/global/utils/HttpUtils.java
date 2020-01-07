@@ -33,7 +33,10 @@ public class HttpUtils {
     public static String getJsonHeaders(HttpServletRequest request, String... headers) {
         Map<String, String> headersMap = new ConcurrentHashMap<>();
         for (String header : headers) {
-            headersMap.put(header, request.getHeader(header));
+            String value = request.getHeader(header);
+            if (StringUtils.isNotEmpty(value)) {
+                headersMap.put(header, request.getHeader(header));
+            }
         }
         return SerializeConvert.toJsonStringNoException(headersMap);
     }

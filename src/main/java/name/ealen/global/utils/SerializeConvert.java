@@ -9,6 +9,7 @@ import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 /**
  * Created by EalenXie on 2019/7/15 13:35.
@@ -37,9 +38,8 @@ public enum SerializeConvert {
         try {
             if (target.length == 1) return toJsonString(target[0]);
             return toJsonString(target);
-        } catch (Exception e) {
-            //ig
-            return e.getMessage();
+        } catch (Exception ig) {
+            return Arrays.toString(target) + " toJsonStringException : " + ig.getMessage();
         }
     }
 

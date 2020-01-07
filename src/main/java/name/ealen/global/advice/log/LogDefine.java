@@ -10,22 +10,20 @@ import java.util.Date;
 
 /**
  * @author EalenXie Created on 2019/12/23 16:46.
- * 全局 自定义 线程单例(不提供对外的构造方法,每个线程中有一个此对象) 日志对象
+ * 自定义日志对象 线程单例(不提供对外的构造方法,每个线程中仅有一个此对象)
  * 如果此对象需要记录到数据库 长字段需要注意长度问题 Mysql推荐用longtext
  */
 @Data
-public class GloLog implements Serializable {
+public class LogDefine implements Serializable {
 
     private static final long serialVersionUID = -6795454806540874727L;
 
     /**
      * 请务必注意该对象 使用->释放 原则
      */
-    private static final ThreadLocal<GloLog> GLO_LOG_THREAD_LOCAL = new ThreadLocal<>();
+    private static final ThreadLocal<LogDefine> LOG_DEFINE_THREAD_LOCAL = new ThreadLocal<>();
 
-
-
-    private GloLog() {
+    private LogDefine() {
         actDate = new Date();
     }
 
@@ -40,7 +38,7 @@ public class GloLog implements Serializable {
     @Size(max = 200)
     private String reqUrl;
     /**
-     * 请求头部信息(可选择记录 如果此对象需要记录到 数据库 字段应该长度尽可能大 Mysql推荐用longtext )
+     * 请求头部信息(可选择记录)
      */
     private String headers;
     /**
@@ -82,36 +80,36 @@ public class GloLog implements Serializable {
     /**
      * 耗时计算
      */
-    public void costTimeCompute() {
-        GloLog gloLog = GloLog.getCurrent();
-        gloLog.setCostTime((System.currentTimeMillis() - getActDate().getTime()));
-        GloLog.setCurrent(gloLog);
+    public void toCostTime() {
+        LogDefine define = LogDefine.getCurrent();
+        define.setCostTime((System.currentTimeMillis() - getActDate().getTime()));
+        LogDefine.setCurrent(define);
     }
 
 
     /**
      * 获取当前线程中的操作日志对象
      */
-    public static GloLog getCurrent() {
-        GloLog actLog = GLO_LOG_THREAD_LOCAL.get();
-        if (actLog == null) {
-            actLog = new GloLog();
-            GLO_LOG_THREAD_LOCAL.set(actLog);
+    public static LogDefine getCurrent() {
+        LogDefine define = LOG_DEFINE_THREAD_LOCAL.get();
+        if (define == null) {
+            define = new LogDefine();
+            LOG_DEFINE_THREAD_LOCAL.set(define);
         }
-        return actLog;
+        return define;
     }
 
-    public static void setCurrent(GloLog actLog) {
-        GLO_LOG_THREAD_LOCAL.set(actLog);
+    public static void setCurrent(LogDefine define) {
+        LOG_DEFINE_THREAD_LOCAL.set(define);
     }
 
     /**
      * 移除当前线程操作日志对象
      */
     public static void removeCurrent() {
-        GloLog actLog = GLO_LOG_THREAD_LOCAL.get();
-        if (actLog != null && actLog.getContent() != null) actLog.content.setLength(0);
-        GLO_LOG_THREAD_LOCAL.remove();
+        LogDefine define = LOG_DEFINE_THREAD_LOCAL.get();
+        if (define != null && define.getContent() != null) define.content.setLength(0);
+        LOG_DEFINE_THREAD_LOCAL.remove();
     }
 
     /**
@@ -119,11 +117,11 @@ public class GloLog implements Serializable {
      *
      * @param step 这里可以使用 该方法记录每一个步骤 : 注意 调用该方法时 请注意释放 ; 不用此对象时，请 调用 移除当前线程操作日志对象
      */
-    public static void contentRecord(String step) {
-        GloLog gloLog = getCurrent();
-        if (gloLog.getContent() == null) gloLog.setContent(new StringBuilder());
-        gloLog.getContent().append(step).append("\n");
-        setCurrent(gloLog);
+    public static void logger(String step) {
+        LogDefine define = getCurrent();
+        if (define.getContent() == null) define.setContent(new StringBuilder());
+        define.getContent().append(step).append("\n");
+        setCurrent(define);
     }
 
     @Override

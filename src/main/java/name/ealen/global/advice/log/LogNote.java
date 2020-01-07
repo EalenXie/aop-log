@@ -1,5 +1,7 @@
 package name.ealen.global.advice.log;
 
+import org.springframework.http.HttpHeaders;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,17 +13,27 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GloLogNote {
+public @interface LogNote {
 
     /**
      * 操作类型(操作分类)
      */
-    String type() default "unknown";
+    String type() default "undefined";
 
     /**
      * 切面是否记录 请求方法
      */
-    boolean method() default false;
+    boolean method() default true;
+
+    /**
+     * 切面是否记录 请求耗时
+     */
+    boolean costTime() default true;
+
+    /**
+     * 记录的headers ,默认只记录一下 user-agent
+     */
+    String[] headers() default HttpHeaders.USER_AGENT;
 
     /**
      * 切面是否记录 请求参数
@@ -34,13 +46,9 @@ public @interface GloLogNote {
     boolean respBody() default false;
 
     /**
-     * 切面是否记录 请求耗时
-     */
-    boolean costTime() default true;
-
-    /**
      * 当发生异常时 , 切面是否记录异常堆栈信息到content
      */
     boolean stackTrace() default false;
+
 
 }

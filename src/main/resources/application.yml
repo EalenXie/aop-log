@@ -4,9 +4,9 @@ spring:
   application:
     name: controller-logger-application
   datasource:
-    url: jdbc:mysql://localhost:3306/yourdatabase?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=true
-    username: yourname
-    password: yourpass
+    url: jdbc:mysql://localhost:3306/springboot?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: admin
   jpa:
     hibernate:
       ddl-auto: update

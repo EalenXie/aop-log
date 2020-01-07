@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Objects;
@@ -25,68 +24,66 @@ import java.util.Objects;
 @Component
 @Aspect
 @Slf4j
-public class GloLogAspect {
+public class LogDefineAspect {
 
     /**
      * 将会切 被SysActLogNote注解标记的方法
      */
-    @Pointcut("@within(GloLogNote)")
-    public void gloLogNotePoint() {
+    @Pointcut("@within(LogNote)")
+    public void logNotePoint() {
         //ig
     }
 
 
-    @Around("gloLogNotePoint()")
-    public Object gloLog(ProceedingJoinPoint point) throws Throwable {
+    @Around("logNotePoint()")
+    public Object logAspect(ProceedingJoinPoint point) throws Throwable {
         Object result;
         //1. 获取当前线程日志对象
-        GloLog gloLog = GloLog.getCurrent();
+        LogDefine define = LogDefine.getCurrent();
         //2. 获取方法签名对象
         MethodSignature signature = (MethodSignature) point.getSignature();
         //3. 获取注解对象
-        GloLogNote note = signature.getMethod().getAnnotation(GloLogNote.class);
-        if (note == null) note = point.getTarget().getClass().getAnnotation(GloLogNote.class);
+        LogNote note = signature.getMethod().getAnnotation(LogNote.class);
+        if (note == null) note = point.getTarget().getClass().getAnnotation(LogNote.class);
         //4. 是否记录参数
-        if (note.args()) gloLog.setArgs(SerializeConvert.toJsonStringNoException(point.getArgs()));
+        if (note.args()) define.setArgs(SerializeConvert.toJsonStringNoException(point.getArgs()));
         //5. 是否记录方法
-        if (note.method()) gloLog.setMethod(signature.getDeclaringTypeName() + "." + signature.getName());
+        if (note.method()) define.setMethod(signature.getDeclaringTypeName() + "." + signature.getName());
         //6. 记录操作分类
-        gloLog.setType(note.type());
+        define.setType(note.type());
         //7. 抓取HttpServletRequest中的信息
-        getByServletRequest(gloLog);
+        getByServletRequest(define, note.headers());
         try {
             //8. 方法逻辑执行
             result = point.proceed();
             //9. 是否记录响应
-            if (note.respBody()) gloLog.setRespBody(SerializeConvert.toJsonStringNoException(result));
+            if (note.respBody()) define.setRespBody(SerializeConvert.toJsonStringNoException(result));
             //10. 记录方法完成状态
-            gloLog.setSuccess(true);
+            define.setSuccess(true);
             //11. 记录当前线程日志对象
-            GloLog.setCurrent(gloLog);
+            LogDefine.setCurrent(define);
         } catch (Throwable throwable) {
             //12. 记录方法完成状态
-            gloLog.setSuccess(false);
+            define.setSuccess(false);
             //13. 是否记录异常堆栈信息到content
             if (note.stackTrace()) {
                 try (StringWriter sw = new StringWriter(); PrintWriter writer = new PrintWriter(sw, true)) {
                     throwable.printStackTrace(writer);
-                    GloLog.contentRecord("Fail : \n" + sw.toString());
+                    LogDefine.logger("Fail : \n" + sw.toString());
                 }
             }
             //14. point.proceed()的异常务必抛出 , 交由后置异常通知处理或者全局异常处理
             throw throwable;
         } finally {
             //15. 计算耗时
-            if (note.costTime()) gloLog.costTimeCompute();
+            if (note.costTime()) define.toCostTime();
             //16. 记录当前线程日志对象
-            GloLog.setCurrent(gloLog);
+            LogDefine.setCurrent(define);
             //17. 此时可以对此对象 进行记录 或者 收集 .....
             //do it yourself
-            String str= gloLog + "\n";
-//            FileConvert.writeStringToFile(str, new File("D:\\home","glo-log.txt"));
         }
         //18. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
-        GloLog.removeCurrent();
+        LogDefine.removeCurrent();
         return result;
     }
 
@@ -94,25 +91,25 @@ public class GloLogAspect {
     /**
      * 为操作日志抓取HttpServletRequest中的信息,如Ip,url,userAgent等等
      */
-    private void getByServletRequest(GloLog gloLog) {
+    private void getByServletRequest(LogDefine define, String[] headers) {
         HttpServletRequest request = HttpUtils.getHttpServletRequest();
         if (Objects.nonNull(request)) {
             //1. 记录一下clientIp
-            gloLog.setClientIp(HttpUtils.getIpAddress(request));
+            define.setClientIp(HttpUtils.getIpAddress(request));
             //2. 记录一下请求的url
-            gloLog.setReqUrl(request.getRequestURL().toString());
+            define.setReqUrl(request.getRequestURL().toString());
             //3. 选取记录的header信息 本例只记录一下User-Agent 可按自己业务进行选择记录
-            gloLog.setHeaders(HttpUtils.getJsonHeaders(request, HttpHeaders.USER_AGENT));
+            define.setHeaders(HttpUtils.getJsonHeaders(request, headers));
         }
     }
 
     /**
      * 后置异常通知处理完成 之后 交由全局异常通知处理
      */
-    @AfterThrowing(pointcut = "gloLogNotePoint()", throwing = "throwable")
+    @AfterThrowing(pointcut = "logNotePoint()", throwing = "throwable")
     public void throwable(Throwable throwable) {
         //ig 目前直接交由全局异常通知处理
-        GloLog.removeCurrent();
+        LogDefine.removeCurrent();
     }
 
 
