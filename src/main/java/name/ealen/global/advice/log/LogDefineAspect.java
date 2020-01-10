@@ -1,6 +1,7 @@
 package name.ealen.global.advice.log;
 
 import lombok.extern.slf4j.Slf4j;
+import name.ealen.global.advice.log.collector.LogCollector;
 import name.ealen.global.utils.HttpUtils;
 import name.ealen.global.utils.SerializeConvert;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -9,12 +10,14 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.UnknownHostException;
 import java.util.Objects;
 
 /**
@@ -25,6 +28,10 @@ import java.util.Objects;
 @Aspect
 @Slf4j
 public class LogDefineAspect {
+
+
+    @Resource
+    private BeanFactory beanFactory;
 
     /**
      * 将会切 被SysActLogNote注解标记的方法
@@ -79,12 +86,27 @@ public class LogDefineAspect {
             if (note.costTime()) define.toCostTime();
             //16. 记录当前线程日志对象
             LogDefine.setCurrent(define);
-            //17. 此时可以对此对象 进行记录 或者 收集 .....
-            //do it yourself
+            //17. 此时可以对此对象 进行记录 或者 收集 .....  or do it yourself
+            LogCollector collector = getCollector(note.collector());
+            collector.collect(define);
         }
         //18. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
         LogDefine.removeCurrent();
         return result;
+    }
+
+    private LogCollector getCollector(Class<? extends LogCollector> clz) {
+        LogCollector collector;
+        try {
+            collector = beanFactory.getBean(clz);
+        } catch (Exception e) {
+            try {
+                collector = clz.newInstance();
+            } catch (InstantiationException | IllegalAccessException ex) {
+                throw new IllegalStateException("LogCollector cannot be acquire");
+            }
+        }
+        return collector;
     }
 
 

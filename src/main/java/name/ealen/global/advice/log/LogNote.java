@@ -1,5 +1,6 @@
 package name.ealen.global.advice.log;
 
+import name.ealen.global.advice.log.collector.LogCollector;
 import org.springframework.http.HttpHeaders;
 
 import java.lang.annotation.ElementType;
@@ -49,6 +50,11 @@ public @interface LogNote {
      * 当发生异常时 , 切面是否记录异常堆栈信息到content
      */
     boolean stackTrace() default false;
+
+    /**
+     * 收集器
+     */
+    Class<? extends LogCollector> collector();
 
 
 }
