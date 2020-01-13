@@ -1,6 +1,7 @@
 package name.ealen.global.advice.log;
 
 import name.ealen.global.advice.log.collector.LogCollector;
+import name.ealen.global.advice.log.collector.NothingCollector;
 import org.springframework.http.HttpHeaders;
 
 import java.lang.annotation.ElementType;
@@ -52,9 +53,9 @@ public @interface LogNote {
     boolean stackTrace() default false;
 
     /**
-     * 收集器
+     * 收集器 默认是空的收集器
      */
-    Class<? extends LogCollector> collector();
+    Class<? extends LogCollector> collector() default NothingCollector.class;
 
 
 }

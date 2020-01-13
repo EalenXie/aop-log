@@ -17,7 +17,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.UnknownHostException;
 import java.util.Objects;
 
 /**
@@ -37,13 +36,16 @@ public class LogDefineAspect {
      * 将会切 被SysActLogNote注解标记的方法
      */
     @Pointcut("@within(LogNote)")
-    public void logNotePoint() {
+    public void noteClass() {
         //ig
     }
 
+    @Pointcut("@annotation(LogNote)")
+    public void noteMethod() {
+        //ig
+    }
 
-    @Around("logNotePoint()")
-    public Object logAspect(ProceedingJoinPoint point) throws Throwable {
+    private Object logger(ProceedingJoinPoint point) throws Throwable {
         Object result;
         //1. 获取当前线程日志对象
         LogDefine define = LogDefine.getCurrent();
@@ -95,6 +97,19 @@ public class LogDefineAspect {
         return result;
     }
 
+    @Around("noteClass()")
+    public Object noteClass(ProceedingJoinPoint point) throws Throwable {
+        return logger(point);
+    }
+
+    @Around("noteMethod()")
+    public Object noteMethod(ProceedingJoinPoint point) throws Throwable {
+        return logger(point);
+    }
+
+    /**
+     * 获取 collector
+     */
     private LogCollector getCollector(Class<? extends LogCollector> clz) {
         LogCollector collector;
         try {
@@ -114,7 +129,7 @@ public class LogDefineAspect {
      * 为操作日志抓取HttpServletRequest中的信息,如Ip,url,userAgent等等
      */
     private void getByServletRequest(LogDefine define, String[] headers) {
-        HttpServletRequest request = HttpUtils.getHttpServletRequest();
+        HttpServletRequest request = HttpUtils.getNonNullHttpServletRequest();
         if (Objects.nonNull(request)) {
             //1. 记录一下clientIp
             define.setClientIp(HttpUtils.getIpAddress(request));
@@ -128,11 +143,19 @@ public class LogDefineAspect {
     /**
      * 后置异常通知处理完成 之后 交由全局异常通知处理
      */
-    @AfterThrowing(pointcut = "logNotePoint()", throwing = "throwable")
-    public void throwable(Throwable throwable) {
+    @AfterThrowing(pointcut = "noteClass()", throwing = "throwable")
+    public void classThrowable(Throwable throwable) {
         //ig 目前直接交由全局异常通知处理
         LogDefine.removeCurrent();
     }
 
+    /**
+     * 后置异常通知处理完成 之后 交由全局异常通知处理
+     */
+    @AfterThrowing(pointcut = "noteMethod()", throwing = "throwable")
+    public void methodThrowable(Throwable throwable) {
+        //ig 目前直接交由全局异常通知处理
+        LogDefine.removeCurrent();
+    }
 
 }

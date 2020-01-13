@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -21,10 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpUtils {
 
-    public static HttpServletRequest getHttpServletRequest() {
+    public static HttpServletRequest getNonNullHttpServletRequest() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (Objects.nonNull(attributes)) return attributes.getRequest();
-        else return null;
+        if (attributes == null) throw new IllegalStateException("获取不到当前ServletRequest");
+        return attributes.getRequest();
     }
 
     /**
