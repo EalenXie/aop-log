@@ -1,7 +1,7 @@
-package name.ealen.global.advice.log;
+package name.ealen.log;
 
-import name.ealen.global.advice.log.collector.LogCollector;
-import name.ealen.global.advice.log.collector.NothingCollector;
+import name.ealen.log.collector.LogCollector;
+import name.ealen.log.collector.NothingCollector;
 import org.springframework.http.HttpHeaders;
 
 import java.lang.annotation.ElementType;

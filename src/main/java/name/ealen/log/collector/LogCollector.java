@@ -1,6 +1,6 @@
-package name.ealen.global.advice.log.collector;
+package name.ealen.log.collector;
 
-import name.ealen.global.advice.log.LogDefine;
+import name.ealen.log.LogDefine;
 
 /**
  * @author EalenXie Created on 2020/1/7 9:12.

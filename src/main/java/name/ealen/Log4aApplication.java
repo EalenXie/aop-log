@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Created by EalenXie on 2018/8/28 15:26.
  */
 @SpringBootApplication
-public class ControllerLoggerApplication {
+public class Log4aApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ControllerLoggerApplication.class, args);
+        SpringApplication.run(Log4aApplication.class, args);
     }
 }

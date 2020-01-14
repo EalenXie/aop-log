@@ -1,4 +1,4 @@
-package name.ealen.global.advice.log.collector;
+package name.ealen.log.collector;
 
 /**
  * @author EalenXie Created on 2020/1/7 9:13.

@@ -1,9 +1,11 @@
-package name.ealen.global.advice.log;
+package name.ealen.log;
 
 import lombok.extern.slf4j.Slf4j;
-import name.ealen.global.advice.log.collector.LogCollector;
-import name.ealen.global.utils.HttpUtils;
-import name.ealen.global.utils.SerializeConvert;
+import name.ealen.log.collector.LogCollectException;
+import name.ealen.log.collector.LogCollector;
+import name.ealen.log.collector.NothingCollector;
+import name.ealen.utils.HttpUtils;
+import name.ealen.utils.SerializeConvert;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
@@ -17,6 +19,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -28,21 +32,42 @@ import java.util.Objects;
 @Slf4j
 public class LogDefineAspect {
 
+    private LogCollector collector;
+
+    private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
 
     @Resource
     private BeanFactory beanFactory;
 
+    @Resource
+    public void setCollector(LogCollector collector) {
+        this.collector = collector;
+    }
+
     /**
-     * 将会切 被SysActLogNote注解标记的方法
+     * 将会切 被LogNote注解标记的类
      */
     @Pointcut("@within(LogNote)")
     public void noteClass() {
         //ig
     }
 
+    /**
+     * 将会切 被LogNote注解标记的方法
+     */
     @Pointcut("@annotation(LogNote)")
     public void noteMethod() {
         //ig
+    }
+
+    @Around("noteClass()")
+    public Object noteClass(ProceedingJoinPoint point) throws Throwable {
+        return logger(point);
+    }
+
+    @Around("noteMethod()")
+    public Object noteMethod(ProceedingJoinPoint point) throws Throwable {
+        return logger(point);
     }
 
     private Object logger(ProceedingJoinPoint point) throws Throwable {
@@ -88,40 +113,45 @@ public class LogDefineAspect {
             if (note.costTime()) define.toCostTime();
             //16. 记录当前线程日志对象
             LogDefine.setCurrent(define);
-            //17. 此时可以对此对象 进行记录 或者 收集 .....  or do it yourself
-            LogCollector collector = getCollector(note.collector());
-            collector.collect(define);
+            //17. 日志收集
+            logCollector(note, define);
         }
         //18. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
         LogDefine.removeCurrent();
         return result;
     }
 
-    @Around("noteClass()")
-    public Object noteClass(ProceedingJoinPoint point) throws Throwable {
-        return logger(point);
-    }
-
-    @Around("noteMethod()")
-    public Object noteMethod(ProceedingJoinPoint point) throws Throwable {
-        return logger(point);
-    }
 
     /**
-     * 获取 collector
+     * 日志收集
+     *
+     * @param note   日志注解
+     * @param define 日志定义
+     * @throws LogCollectException 日志收集异常
      */
-    private LogCollector getCollector(Class<? extends LogCollector> clz) {
-        LogCollector collector;
-        try {
-            collector = beanFactory.getBean(clz);
-        } catch (Exception e) {
+    private void logCollector(LogNote note, LogDefine define) throws LogCollectException {
+        //1. 获取收集器
+        Class<? extends LogCollector> clz = note.collector();
+        //2. 查看是否有指定收集器 有则使用 指定收集器 进行日志收集
+        if (clz != NothingCollector.class) {
+            LogCollector c;
             try {
-                collector = clz.newInstance();
-            } catch (InstantiationException | IllegalAccessException ex) {
-                throw new IllegalStateException("LogCollector cannot be acquire");
+                c = beanFactory.getBean(clz);
+            } catch (Exception e) {
+                c = collectors.get(clz);
+                if (c == null) {
+                    try {
+                        c = clz.newInstance();
+                    } catch (InstantiationException | IllegalAccessException ex) {
+                        throw new LogCollectException("LogCollector cannot be acquire", ex);
+                    }
+                    collectors.put(clz, c);
+                }
             }
+            c.collect(define);
+        } else {
+            collector.collect(define);
         }
-        return collector;
     }
 
 

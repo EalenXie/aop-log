@@ -1,4 +1,4 @@
-package name.ealen.global.utils;
+package name.ealen.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

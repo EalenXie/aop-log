@@ -1,4 +1,4 @@
-package name.ealen.global.advice.log;
+package name.ealen.log;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -113,9 +113,10 @@ public class LogDefine implements Serializable {
     }
 
     /**
-     * 内容记录记录
+     * 内容记录记录 正常会在aop中结束释放
      *
      * @param step 这里可以使用 该方法记录每一个步骤 : 注意 调用该方法时 请注意释放 ; 不用此对象时，请 调用 移除当前线程操作日志对象
+     *
      */
     public static void logger(String step) {
         LogDefine define = getCurrent();

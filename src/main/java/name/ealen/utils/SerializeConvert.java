@@ -1,4 +1,4 @@
-package name.ealen.global.utils;
+package name.ealen.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
