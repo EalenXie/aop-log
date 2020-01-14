@@ -48,7 +48,7 @@ public @interface Log4a {
     boolean respBody() default false;
 
     /**
-     * 当发生异常时 , 切面是否记录异常堆栈信息到content
+     * 当发生异常时,切面是否记录异常堆栈信息到content
      */
     boolean stackTrace() default false;
 
