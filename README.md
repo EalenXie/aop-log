@@ -1,25 +1,31 @@
-HTTP请求日志与异常记录
+Log4a
 ==================
 
-#### 这是AOP和过滤器拦截的一个简单例子，它包含对请求日志处理，以及异常的统一处理，当异常发生时，本例可以返回一个统一的自定义异常标准，和异常的记录。
+#### 基于AOP和ThreadLocal实现的一个Http API 日志模块
 
-##### 实现的核心为 `@ControllerAdvice`注解，AOP以及Filter。主要目的是当发生异常时，能够迅速排查异常的原因，不用上服务器查看日志。
+在API每次被请求时,可以在整个方法调用链路中记录一条唯一的API请求日志,可以记录请求中的任意内容,比如传参,响应,请求url,method,clientIp,请求成功或异常,等等,以及HttpServletRequest中的任意内容。
 
-主要实现效果如下 : 
 
-##### 1. 请求正常时，日志会记录请求的参数，响应的参数，内部方法耗时等。
+##### 实现的核心为AOP以及ThreadLocal。 AOP 会切所有被Log4a注解的方法,会记录一个线程中唯一一个LogDefine对象,抓取请求的内容和HttpServletRequest中的内容,并且可以完成自定义的日志收集(例如写入到数据库或者写入到文件),记录无论目标方法成功或失败,在执行完成后都将对ThreadLocal中的资源进行释放。
 
- ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421103527296-533347000.png)
 
-##### 2. 发生异常时；比如我们请求第三方接口遇到抛出的`HttpServerErrorException`或者`HttpClientErrorException`，比如常见的504异常。
- ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421104408425-1760059853.png)
+**LogDefine 记录的内容**
+ 
+|字段|类型|注释|是否默认记录|
+|:---- |:-------|:------|------|
+|clientIp|String|请求客户端的Ip|是|
+|reqUrl|String|请求地址|是|
+|headers|String|请求头部信息(可选择记录)|是,默认记录user-agent|
+|type|String|操作类型|是,默认值undefined|
+|content|StringBuilder|操作类型|否,方法内容,可使用LogDefine.logger进行内容步骤记录|
+|method|String|请求的本地java方法|是|
+|args|String|方法请求参数|否|
+|respBody|String|方法响应参数|否|
+|costTime|Long|整个方法耗时|是|
+|logDate|Date|Log产生时间|是,默认值是LogDefine对象初始化的时间|
+|success|Boolean|Log产生时间|是,执行状态,成功(true)/异常(false),默认false|
 
-##### 3. 数据库中记录该异常。
- ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421111006164-1287847065.png)
-
-##### 4. 常见的参数校验异常。
- ![avatar](https://img2018.cnblogs.com/blog/994599/201904/994599-20190421111659123-1658996597.png)
-
+**Log4a 注解内容**
 
 
 

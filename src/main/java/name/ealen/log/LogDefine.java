@@ -1,10 +1,8 @@
 package name.ealen.log;
 
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -24,18 +22,16 @@ public class LogDefine implements Serializable {
     private static final ThreadLocal<LogDefine> LOG_DEFINE_THREAD_LOCAL = new ThreadLocal<>();
 
     private LogDefine() {
-        actDate = new Date();
+        logDate = new Date();
     }
 
     /**
      * 请求Ip
      */
-    @Size(max = 40)
     private String clientIp;
     /**
      * 请求地址
      */
-    @Size(max = 200)
     private String reqUrl;
     /**
      * 请求头部信息(可选择记录)
@@ -44,7 +40,6 @@ public class LogDefine implements Serializable {
     /**
      * 操作类型
      */
-    @Size(max = 30)
     private String type;
     /**
      * 方法内容 (如果此对象需要记录到 数据库 字段应该长度尽可能大 Mysql推荐用longtext)
@@ -53,7 +48,6 @@ public class LogDefine implements Serializable {
     /**
      * 操作方法
      */
-    @Size(max = 100)
     private String method;
     /**
      * 参数 (如果此对象需要记录到 数据库 字段应该长度尽可能大 Mysql推荐用longtext)
@@ -66,8 +60,7 @@ public class LogDefine implements Serializable {
     /**
      * 操作日期(调用日期)
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date actDate;
+    private Date logDate;
     /**
      * 业务处理耗时
      */
@@ -82,7 +75,7 @@ public class LogDefine implements Serializable {
      */
     public void toCostTime() {
         LogDefine define = LogDefine.getCurrent();
-        define.setCostTime((System.currentTimeMillis() - getActDate().getTime()));
+        define.setCostTime((System.currentTimeMillis() - getLogDate().getTime()));
         LogDefine.setCurrent(define);
     }
 

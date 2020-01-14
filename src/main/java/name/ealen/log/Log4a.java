@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LogNote {
+public @interface Log4a {
 
     /**
      * 操作类型(操作分类)
@@ -53,7 +53,7 @@ public @interface LogNote {
     boolean stackTrace() default false;
 
     /**
-     * 收集器 默认是空的收集器
+     * 收集器
      */
     Class<? extends LogCollector> collector() default NothingCollector.class;
 

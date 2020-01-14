@@ -47,7 +47,7 @@ public class LogDefineAspect {
     /**
      * 将会切 被LogNote注解标记的类
      */
-    @Pointcut("@within(LogNote)")
+    @Pointcut("@within(Log4a)")
     public void noteClass() {
         //ig
     }
@@ -55,7 +55,7 @@ public class LogDefineAspect {
     /**
      * 将会切 被LogNote注解标记的方法
      */
-    @Pointcut("@annotation(LogNote)")
+    @Pointcut("@annotation(Log4a)")
     public void noteMethod() {
         //ig
     }
@@ -77,21 +77,21 @@ public class LogDefineAspect {
         //2. 获取方法签名对象
         MethodSignature signature = (MethodSignature) point.getSignature();
         //3. 获取注解对象
-        LogNote note = signature.getMethod().getAnnotation(LogNote.class);
-        if (note == null) note = point.getTarget().getClass().getAnnotation(LogNote.class);
+        Log4a log4a = signature.getMethod().getAnnotation(Log4a.class);
+        if (log4a == null) log4a = point.getTarget().getClass().getAnnotation(Log4a.class);
         //4. 是否记录参数
-        if (note.args()) define.setArgs(SerializeConvert.toJsonStringNoException(point.getArgs()));
+        if (log4a.args()) define.setArgs(SerializeConvert.toJsonStringNoException(point.getArgs()));
         //5. 是否记录方法
-        if (note.method()) define.setMethod(signature.getDeclaringTypeName() + "." + signature.getName());
+        if (log4a.method()) define.setMethod(signature.getDeclaringTypeName() + "." + signature.getName());
         //6. 记录操作分类
-        define.setType(note.type());
+        define.setType(log4a.type());
         //7. 抓取HttpServletRequest中的信息
-        getByServletRequest(define, note.headers());
+        getByServletRequest(define, log4a.headers());
         try {
             //8. 方法逻辑执行
             result = point.proceed();
             //9. 是否记录响应
-            if (note.respBody()) define.setRespBody(SerializeConvert.toJsonStringNoException(result));
+            if (log4a.respBody()) define.setRespBody(SerializeConvert.toJsonStringNoException(result));
             //10. 记录方法完成状态
             define.setSuccess(true);
             //11. 记录当前线程日志对象
@@ -100,7 +100,7 @@ public class LogDefineAspect {
             //12. 记录方法完成状态
             define.setSuccess(false);
             //13. 是否记录异常堆栈信息到content
-            if (note.stackTrace()) {
+            if (log4a.stackTrace()) {
                 try (StringWriter sw = new StringWriter(); PrintWriter writer = new PrintWriter(sw, true)) {
                     throwable.printStackTrace(writer);
                     LogDefine.logger("Fail : \n" + sw.toString());
@@ -110,11 +110,11 @@ public class LogDefineAspect {
             throw throwable;
         } finally {
             //15. 计算耗时
-            if (note.costTime()) define.toCostTime();
+            if (log4a.costTime()) define.toCostTime();
             //16. 记录当前线程日志对象
             LogDefine.setCurrent(define);
             //17. 日志收集
-            logCollector(note, define);
+            logCollector(log4a, define);
         }
         //18. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
         LogDefine.removeCurrent();
@@ -125,13 +125,13 @@ public class LogDefineAspect {
     /**
      * 日志收集
      *
-     * @param note   日志注解
+     * @param log4a   日志注解
      * @param define 日志定义
      * @throws LogCollectException 日志收集异常
      */
-    private void logCollector(LogNote note, LogDefine define) throws LogCollectException {
+    private void logCollector(Log4a log4a, LogDefine define) throws LogCollectException {
         //1. 获取收集器
-        Class<? extends LogCollector> clz = note.collector();
+        Class<? extends LogCollector> clz = log4a.collector();
         //2. 查看是否有指定收集器 有则使用 指定收集器 进行日志收集
         if (clz != NothingCollector.class) {
             LogCollector c;
