@@ -94,26 +94,24 @@ public class LogDefineAspect {
             if (log4a.respBody()) define.setRespBody(SerializeConvert.toJsonStringNoException(result));
             //10. 记录方法完成状态
             define.setSuccess(true);
-            //11. 记录当前线程日志对象
-            LogDefine.setCurrent(define);
         } catch (Throwable throwable) {
-            //12. 记录方法完成状态
+            //11. 记录方法完成状态
             define.setSuccess(false);
-            //13. 是否记录异常堆栈信息到content
+            //12. 是否记录异常堆栈信息到content
             if (log4a.stackTrace()) {
                 try (StringWriter sw = new StringWriter(); PrintWriter writer = new PrintWriter(sw, true)) {
                     throwable.printStackTrace(writer);
                     LogDefine.logger("Fail : \n" + sw.toString());
                 }
             }
-            //14. point.proceed()的异常务必抛出 , 交由后置异常通知处理或者全局异常处理
+            //13. point.proceed()的异常务必抛出 , 交由后置异常通知处理或者全局异常处理
             throw throwable;
         } finally {
-            //15. 计算耗时
+            //14. 计算耗时
             if (log4a.costTime()) define.toCostTime();
-            //16. 记录当前线程日志对象
+            //15. 记录当前线程日志对象
             LogDefine.setCurrent(define);
-            //17. 日志收集
+            //16. 日志收集
             logCollector(log4a, define);
         }
         //18. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
@@ -125,7 +123,7 @@ public class LogDefineAspect {
     /**
      * 日志收集
      *
-     * @param log4a   日志注解
+     * @param log4a  日志注解
      * @param define 日志定义
      * @throws LogCollectException 日志收集异常
      */
