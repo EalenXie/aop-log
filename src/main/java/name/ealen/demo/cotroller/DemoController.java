@@ -17,15 +17,11 @@ import java.util.Map;
 @Log4a(type = "测试API", stackTrace = true, args = true, respBody = true)
 @RestController
 public class DemoController {
-
     @Resource
     private DemoService demoService;
-
     @PostMapping("/sayHello")
     public ResponseEntity sayHello(@RequestBody Map<String, Object> request) {
         demoService.sayHello(request);
         return ResponseEntity.ok(request);
     }
-
-
 }
