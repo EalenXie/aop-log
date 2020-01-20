@@ -15,7 +15,7 @@ Log4a
 | reqUrl   | String        | 请求地址                        | 是                                                 |
 | headers  | String        | 请求头部信息(可选择记录)        | 是,默认记录user-agent                              |
 | type     | String        | 操作类型                        | 是,默认值undefined                                 |
-| content  | StringBuilder | 操作类型                        | 否,方法内容,可使用LogDefine.logger进行内容步骤记录 |
+| content  | StringBuilder | 操作内容                        | 否,方法内容,可使用LogDefine.logger进行内容步骤记录 |
 | method   | String        | 请求的本地java方法              | 是                                                 |
 | args     | String        | 方法请求参数                    | 否                                                 |
 | respBody | String        | 方法响应参数                    | 否                                                 |
