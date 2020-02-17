@@ -1,6 +1,6 @@
 package name.ealen.demo;
 
-import name.ealen.log.LogDefine;
+import name.ealen.log.Log4;
 import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
 import org.springframework.stereotype.Component;
@@ -17,9 +17,9 @@ import java.io.IOException;
 @Component
 public class DemoLogCollector implements LogCollector {
     @Override
-    public void collect(LogDefine define) throws LogCollectException {
+    public void collect(Log4 log4) throws LogCollectException {
         try (FileWriter fw = new FileWriter("D:\\home\\temp\\日志.txt", true)) {
-            fw.append(define.toString());
+            fw.append(log4.toString());
         } catch (IOException e) {
             throw new LogCollectException(e);
         }

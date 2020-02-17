@@ -5,9 +5,9 @@ Log4a
 
 在API每次被请求时,可以在整个方法调用链路中记录一条唯一的API请求日志,可以记录请求中的任意内容,比如传参,响应,请求url,method,clientIp,请求成功或异常,等等,以及HttpServletRequest中的任意内容。
 
-实现的核心为AOP以及ThreadLocal。 AOP 会切所有被Log4a注解的方法,会记录一个线程中唯一一个LogDefine对象,抓取请求的内容和HttpServletRequest中的内容,并且可以完成自定义的日志收集(例如写入到数据库或者写入到文件),记录无论目标方法成功或失败,在执行完成后都将对ThreadLocal中的资源进行释放。
+实现的核心为AOP以及ThreadLocal。 AOP 会切所有被Log4a注解的方法,会记录一个线程中唯一一个Log4对象,抓取请求的内容和HttpServletRequest中的内容,并且可以完成自定义的日志收集(例如写入到数据库或者写入到文件),记录无论目标方法成功或失败,在执行完成后都将对ThreadLocal中的资源进行释放。
 
-**LogDefine 记录的内容**
+**Log4 记录的内容**
 
 | 字段     | 类型          | 注释                            | 是否默认记录                                       |
 | :------- | :------------ | :------------------------------ | -------------------------------------------------- |
@@ -15,12 +15,12 @@ Log4a
 | reqUrl   | String        | 请求地址                        | 是                                                 |
 | headers  | String        | 请求头部信息(可选择记录)        | 是,默认记录user-agent                              |
 | type     | String        | 操作类型                        | 是,默认值undefined                                 |
-| content  | StringBuilder | 操作类型                        | 否,方法内容,可使用LogDefine.logger进行内容步骤记录 |
+| content  | StringBuilder | 操作类型                        | 否,方法内容,可使用Log4.step进行内容步骤记录 |
 | method   | String        | 请求的本地java方法              | 是                                                 |
 | args     | String        | 方法请求参数                    | 否                                                 |
 | respBody | String        | 方法响应参数                    | 否                                                 |
 | costTime | Long          | 整个方法耗时                    | 是                                                 |
-| logDate  | Date          | Log产生时间                     | 是,默认值是LogDefine对象初始化的时间               |
+| logDate  | Long          | Log产生时间                     | 是,默认值是Log4对象初始化的时间               |
 | success  | Boolean       | 执行状态,成功(true)/异常(false) | 是,默认false                                       |
 
 **Log4a 注解选项说明**
@@ -58,9 +58,9 @@ public class DemoController {
 }
 ```
 
-###### LogDefine.logger 记录详细
+###### Log4.step 记录详细
 
-这里调用了service方法,还可以通过LogDefine.logger 方法记录每一个步骤详细内容
+这里调用了service方法,Log4.step 方法记录每一个步骤详细内容
 
 ```java
 /**
@@ -70,12 +70,12 @@ public class DemoController {
 @Slf4j
 public class DemoService {
     /**
-     * 测试方法, 使用LogDefine.logger记录步骤
+     * 测试方法, 使用Log4.step记录步骤
      */
     public void sayHello(Map<String, Object> words) {
-        LogDefine.logger("1. 请求来了,执行业务动作");
+        Log4.step("1. 请求来了,执行业务动作");
         log.info("do somethings");
-        LogDefine.logger("2. 业务动作执行完成");
+        Log4.step("2. 业务动作执行完成");
     }
 }
 ```
@@ -88,9 +88,9 @@ public class DemoService {
 @Component
 public class DemoLogCollector implements LogCollector {
     @Override
-    public void collect(LogDefine define) throws LogCollectException {
+    public void collect(Log4 log4) throws LogCollectException {
         try (FileWriter fw = new FileWriter("D:\\home\\temp\\日志.txt", true)) {
-            fw.append(define.toString());
+            fw.append(log4.toString());
         } catch (IOException e) {
             throw new LogCollectException(e);
         }
