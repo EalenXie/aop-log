@@ -123,8 +123,8 @@ public class Log4Aspect {
     /**
      * 日志收集
      *
-     * @param log4a  日志注解
-     * @param log4 日志定义
+     * @param log4a 日志注解
+     * @param log4  日志定义
      * @throws LogCollectException 日志收集异常
      */
     private void logCollector(Log4a log4a, Log4 log4) throws LogCollectException {
