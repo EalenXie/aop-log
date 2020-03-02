@@ -40,7 +40,7 @@ public class HttpUtils {
                 headersMap.put(header, request.getHeader(header));
             }
         }
-        return SerializeConvert.toJsonStringNoException(headersMap);
+        return SerializeConvert.toJsonStringQuietly(headersMap);
     }
 
     /**
