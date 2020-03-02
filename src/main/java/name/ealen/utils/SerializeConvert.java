@@ -34,7 +34,7 @@ public enum SerializeConvert {
     /**
      * 将对象转为json字符串 (将忽略异常)
      */
-    public static String toJsonStringNoException(Object... target) {
+    public static String toJsonStringQuietly(Object... target) {
         try {
             if (target.length == 1) return toJsonString(target[0]);
             return toJsonString(target);

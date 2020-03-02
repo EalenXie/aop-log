@@ -80,7 +80,7 @@ public class Log4Aspect {
         Log4a log4a = signature.getMethod().getAnnotation(Log4a.class);
         if (log4a == null) log4a = point.getTarget().getClass().getAnnotation(Log4a.class);
         //4. 是否记录参数
-        if (log4a.args()) log4.setArgs(SerializeConvert.toJsonStringNoException(point.getArgs()));
+        if (log4a.args()) log4.setArgs(SerializeConvert.toJsonStringQuietly(point.getArgs()));
         //5. 是否记录方法
         if (log4a.method()) log4.setMethod(signature.getDeclaringTypeName() + "." + signature.getName());
         //6. 记录操作分类
@@ -91,7 +91,7 @@ public class Log4Aspect {
             //8. 方法逻辑执行
             result = point.proceed();
             //9. 是否记录响应
-            if (log4a.respBody()) log4.setRespBody(SerializeConvert.toJsonStringNoException(result));
+            if (log4a.respBody()) log4.setRespBody(SerializeConvert.toJsonStringQuietly(result));
             //10. 记录方法完成状态
             log4.setSuccess(true);
         } catch (Throwable throwable) {
