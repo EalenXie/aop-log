@@ -21,7 +21,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author EalenXie Created on 2020/1/2 17:52.
@@ -158,14 +157,12 @@ public class Log4Aspect {
      */
     private void getByServletRequest(Log4 log4, String[] headers) {
         HttpServletRequest request = HttpUtils.getNonNullHttpServletRequest();
-        if (Objects.nonNull(request)) {
-            //1. 记录一下clientIp
-            log4.setClientIp(HttpUtils.getIpAddress(request));
-            //2. 记录一下请求的url
-            log4.setReqUrl(request.getRequestURL().toString());
-            //3. 选取记录的header信息 本例只记录一下User-Agent 可按自己业务进行选择记录
-            log4.setHeaders(HttpUtils.getJsonHeaders(request, headers));
-        }
+        //1. 记录一下clientIp
+        log4.setClientIp(HttpUtils.getIpAddress(request));
+        //2. 记录一下请求的url
+        log4.setReqUrl(request.getRequestURL().toString());
+        //3. 选取记录的header信息 本例只记录一下User-Agent 可按自己业务进行选择记录
+        log4.setHeaders(HttpUtils.getJsonHeaders(request, headers));
     }
 
     /**
