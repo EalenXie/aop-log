@@ -12,6 +12,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.stereotype.Component;
 
@@ -137,11 +138,7 @@ public class Log4Aspect {
             } catch (Exception e) {
                 c = collectors.get(clz);
                 if (c == null) {
-                    try {
-                        c = clz.newInstance();
-                    } catch (InstantiationException | IllegalAccessException ex) {
-                        throw new LogCollectException("LogCollector cannot be acquire", ex);
-                    }
+                    c = BeanUtils.instantiateClass(clz);
                     collectors.put(clz, c);
                 }
             }
