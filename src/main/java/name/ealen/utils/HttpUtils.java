@@ -10,8 +10,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author EalenXie Created on 2020/1/2 18:08.
@@ -27,20 +25,6 @@ public class HttpUtils {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) throw new IllegalStateException("获取不到当前ServletRequestAttributes");
         return attributes.getRequest();
-    }
-
-    /**
-     * 从HttpServletRequest 获取 jsonString 格式的header信息
-     */
-    public static String getJsonHeaders(HttpServletRequest request, String... headers) {
-        Map<String, String> headersMap = new ConcurrentHashMap<>();
-        for (String header : headers) {
-            String value = request.getHeader(header);
-            if (StringUtils.isNotEmpty(value)) {
-                headersMap.put(header, request.getHeader(header));
-            }
-        }
-        return SerializeConvert.toJsonStringQuietly(headersMap);
     }
 
     /**

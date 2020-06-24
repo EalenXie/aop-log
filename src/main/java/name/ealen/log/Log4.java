@@ -3,17 +3,12 @@ package name.ealen.log;
 import com.alibaba.fastjson.JSON;
 import lombok.Data;
 
-import java.io.Serializable;
-
 /**
  * @author EalenXie Created on 2019/12/23 16:46.
  * 自定义日志对象 线程单例(不提供对外的构造方法,每个线程中仅有一个此对象)
- * 如果此对象需要记录到数据库 长字段需要注意长度问题 Mysql推荐用longtext
  */
 @Data
-public class Log4 implements Serializable {
-
-    private static final long serialVersionUID = -6795454806540874727L;
+public class Log4 {
 
     /**
      * 请务必注意该对象 使用->释放 原则
@@ -34,7 +29,7 @@ public class Log4 implements Serializable {
     /**
      * 请求头部信息(可选择记录)
      */
-    private String headers;
+    private Object headers;
     /**
      * 操作类型
      */
@@ -48,13 +43,13 @@ public class Log4 implements Serializable {
      */
     private String method;
     /**
-     * 参数 (如果此对象需要记录到 数据库 字段应该长度尽可能大 Mysql推荐用longtext)
+     * 参数
      */
-    private String args;
+    private Object args;
     /**
-     * 响应体 (如果此对象需要记录到 数据库 字段应该长度尽可能大 Mysql推荐用longtext)
+     * 响应体
      */
-    private String respBody;
+    private Object respBody;
     /**
      * 操作日期(调用日期)
      */

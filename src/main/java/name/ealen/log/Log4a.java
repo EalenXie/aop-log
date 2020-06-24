@@ -33,19 +33,19 @@ public @interface Log4a {
     boolean costTime() default true;
 
     /**
-     * 记录的headers ,默认只记录一下 user-agent
+     * 记录的headers ,默认只记录一下 content-type user-agent
      */
-    String[] headers() default HttpHeaders.USER_AGENT;
+    String[] headers() default {HttpHeaders.USER_AGENT, HttpHeaders.CONTENT_TYPE};
 
     /**
      * 切面是否记录 请求参数
      */
-    boolean args() default false;
+    boolean args() default true;
 
     /**
      * 切面是否记录 响应参数
      */
-    boolean respBody() default false;
+    boolean respBody() default true;
 
     /**
      * 当发生异常时,切面是否记录异常堆栈信息到content

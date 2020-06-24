@@ -1,11 +1,13 @@
 package name.ealen.log;
 
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
 import name.ealen.log.collector.NothingCollector;
 import name.ealen.utils.HttpUtils;
 import name.ealen.utils.SerializeConvert;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
@@ -22,6 +24,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author EalenXie Created on 2020/1/2 17:52.
@@ -80,7 +83,7 @@ public class Log4Aspect {
         Log4a log4a = signature.getMethod().getAnnotation(Log4a.class);
         if (log4a == null) log4a = point.getTarget().getClass().getAnnotation(Log4a.class);
         //4. 是否记录参数
-        if (log4a.args()) log4.setArgs(SerializeConvert.toJsonStringQuietly(point.getArgs()));
+        if (log4a.args()) log4.setArgs(point.getArgs());
         //5. 是否记录方法
         if (log4a.method()) log4.setMethod(signature.getDeclaringTypeName() + "." + signature.getName());
         //6. 记录操作分类
@@ -91,7 +94,7 @@ public class Log4Aspect {
             //8. 方法逻辑执行
             result = point.proceed();
             //9. 是否记录响应
-            if (log4a.respBody()) log4.setRespBody(SerializeConvert.toJsonStringQuietly(result));
+            if (log4a.respBody()) log4.setRespBody(JSON.toJSON(result));
             //10. 记录方法完成状态
             log4.setSuccess(true);
         } catch (Throwable throwable) {
@@ -159,7 +162,14 @@ public class Log4Aspect {
         //2. 记录一下请求的url
         log4.setReqUrl(request.getRequestURL().toString());
         //3. 选取记录的header信息 本例只记录一下User-Agent 可按自己业务进行选择记录
-        log4.setHeaders(HttpUtils.getJsonHeaders(request, headers));
+        Map<String, String> headersMap = new HashMap<>();
+        for (String header : headers) {
+            String value = request.getHeader(header);
+            if (StringUtils.isNotEmpty(value)) {
+                headersMap.put(header, request.getHeader(header));
+            }
+        }
+        log4.setHeaders(headersMap);
     }
 
     /**
