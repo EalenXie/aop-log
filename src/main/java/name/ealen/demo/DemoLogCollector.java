@@ -3,8 +3,10 @@ package name.ealen.demo;
 import name.ealen.log.Log4;
 import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -18,8 +20,14 @@ import java.io.IOException;
 public class DemoLogCollector implements LogCollector {
     @Override
     public void collect(Log4 log4) throws LogCollectException {
-        try (FileWriter fw = new FileWriter("D:\\home\\temp\\日志.txt", true)) {
-            fw.append(log4.toString());
+        try {
+            File file = new File("D:\\home\\temp\\日志.txt");
+            if (!file.getParentFile().exists()) {
+                FileUtils.forceMkdir(file.getParentFile());
+            }
+            try (FileWriter fw = new FileWriter(file, true)) {
+                fw.append(log4.toString());
+            }
         } catch (IOException e) {
             throw new LogCollectException(e);
         }

@@ -70,7 +70,7 @@ public enum SerializeConvert {
      * @param target XML文件对象
      * @param clazz  Java对象类型
      */
-    public static Object xmlFileToJavaBean(File target, Class clazz) throws JAXBException {
+    public static Object xmlFileToJavaBean(File target, Class<?> clazz) throws JAXBException {
         return JAXBContext.newInstance(clazz).createUnmarshaller().unmarshal(target);
     }
 

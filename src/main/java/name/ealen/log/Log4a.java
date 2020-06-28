@@ -56,6 +56,4 @@ public @interface Log4a {
      * 收集器
      */
     Class<? extends LogCollector> collector() default NothingCollector.class;
-
-
 }

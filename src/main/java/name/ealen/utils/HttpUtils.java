@@ -18,14 +18,6 @@ import java.net.UnknownHostException;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpUtils {
 
-    /**
-     * 获取不为null的httpServletRequest
-     */
-    public static HttpServletRequest getNonNullHttpServletRequest() {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes == null) throw new IllegalStateException("获取不到当前ServletRequestAttributes");
-        return attributes.getRequest();
-    }
 
     /**
      * 获取用户IP地址

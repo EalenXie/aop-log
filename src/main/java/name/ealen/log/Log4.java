@@ -1,22 +1,23 @@
 package name.ealen.log;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author EalenXie Created on 2019/12/23 16:46.
  * 自定义日志对象 线程单例(不提供对外的构造方法,每个线程中仅有一个此对象)
  */
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Log4 {
 
     /**
      * 请务必注意该对象 使用->释放 原则
      */
     private static final ThreadLocal<Log4> LOG_4_THREAD_LOCAL = new ThreadLocal<>();
-
-    private Log4() {
-    }
 
     /**
      * 请求Ip
@@ -110,7 +111,7 @@ public class Log4 {
 
     @Override
     public String toString() {
-        return JSON.toJSONString(this);
+        return JSON.toJSONString(this, SerializerFeature.WriteMapNullValue);
     }
 
 }
