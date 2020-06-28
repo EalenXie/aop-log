@@ -45,16 +45,48 @@ Log4a
 直接在Controller 方法或类上加上注解`@Log4a`,可以对该Controller中所有方法进行日志记录与收集
 
 ```java
-@Log4a(type = "测试API", stackTrace = true, args = true, respBody = true)
+@Log4a(type = "测试API", stackTrace = true)
 @RestController
 public class DemoController {
     @Resource
     private DemoService demoService;
+    /**
+     * JSON数据测试
+     */
     @PostMapping("/sayHello")
-    public ResponseEntity sayHello(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> sayHello(@RequestBody Map<String, Object> request) {
         demoService.sayHello(request);
         return ResponseEntity.ok(request);
     }
+    /**
+     * RequestParam 参数测试
+     */
+    @PostMapping("/params")
+    public ResponseEntity<?> params(@RequestParam Integer a) {
+        return ResponseEntity.ok(a);
+    }
+    /**
+     * 无参测试
+     */
+    @GetMapping("/noArgs")
+    public ResponseEntity<?> noArgs() {
+        return ResponseEntity.ok().build();
+    }
+    /**
+     * XML 格式数据测试
+     */
+    @PostMapping(value = "/callXml", consumes = {MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> callXml(@RequestBody XmlDataDTO dataDTO) {
+        return ResponseEntity.ok(dataDTO);
+    }
+    /**
+     * 特殊对象测试
+     */
+    @GetMapping("/callHttpServletRequest")
+    public ResponseEntity<?> callHttpServletRequest(HttpServletRequest request) {
+        return ResponseEntity.ok().build();
+    }
+
 }
 ```
 
@@ -89,8 +121,14 @@ public class DemoService {
 public class DemoLogCollector implements LogCollector {
     @Override
     public void collect(Log4 log4) throws LogCollectException {
-        try (FileWriter fw = new FileWriter("D:\\home\\temp\\日志.txt", true)) {
-            fw.append(log4.toString());
+        try {
+            File file = new File("D:\\home\\temp\\日志.txt");
+            if (!file.getParentFile().exists()) {
+                FileUtils.forceMkdir(file.getParentFile());
+            }
+            try (FileWriter fw = new FileWriter(file, true)) {
+                fw.append(log4.toString());
+            }
         } catch (IOException e) {
             throw new LogCollectException(e);
         }
@@ -98,14 +136,15 @@ public class DemoLogCollector implements LogCollector {
 }
 ```
 
-测试后 , 可以从 日志.txt中获取到记录的日志内容。
+测试后 , 可以从 D:\\home\\temp\\日志.txt中获取到记录的日志内容。
 
+json格式的数据记录(参数JSON): 
 ```json
 {
-	"args": [{
+	"args": {
 		"id": 999,
 		"value": "content"
-	}],
+	},
 	"clientIp": "192.168.1.54",
 	"content": "1. 请求来了,执行业务动作\n2. 业务动作执行完成\n",
 	"costTime": 2,
@@ -113,8 +152,8 @@ public class DemoLogCollector implements LogCollector {
 		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
 		"Content-Type": "application/json"
 	},
-	"logDate": 1592963836735,
-	"method": "name.ealen.demo.cotroller.DemoController.sayHello",
+	"logDate": 1593341797293,
+	"method": "name.ealen.demo.controller.DemoController#sayHello",
 	"reqUrl": "http://localhost:9527/sayHello",
 	"respBody": {
 		"headers": {},
@@ -130,14 +169,82 @@ public class DemoLogCollector implements LogCollector {
 }
 ```
 
+xml格式的数据(参数XML): 
+```json
+{
+	"args": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><xml><message>1111 </message><username>zhangsan</username></xml>",
+	"clientIp": "192.168.1.54",
+	"content": "",
+	"costTime": 8,
+	"headers": {
+		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
+		"Content-Type": "application/xml"
+	},
+	"logDate": 1593342003986,
+	"method": "name.ealen.demo.controller.DemoController#callXml",
+	"reqUrl": "http://localhost:9527/callXml",
+	"respBody": {
+		"body": {
+			"message": "1111 ",
+			"username": "zhangsan"
+		},
+		"headers": {},
+		"statusCode": "OK",
+		"statusCodeValue": 200
+	},
+	"success": true,
+	"type": "测试API"
+}
+```
+form参数格式的数据(参数键值对形式):
 
+```json
+{
+	"args": "z=11&a=1",
+	"clientIp": "192.168.1.54",
+	"content": "",
+	"costTime": 1,
+	"headers": {
+		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
+		"Content-Type": "application/x-www-form-urlencoded"
+	},
+	"logDate": 1593342114342,
+	"method": "name.ealen.demo.controller.DemoController#params",
+	"reqUrl": "http://localhost:9527/params",
+	"respBody": {
+		"headers": {},
+		"statusCodeValue": 200,
+		"body": 1,
+		"statusCode": "OK"
+	},
+	"success": true,
+	"type": "测试API"
+}
+```
 
-
-
-
-
-
-
+特殊参数格式(键值对形式,参数默认取对象的toString()方法):
+```json
+{
+	"args": "request=org.apache.catalina.connector.RequestFacade@754f30c3",
+	"clientIp": "192.168.1.54",
+	"content": "",
+	"costTime": 1,
+	"headers": {
+		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)"
+	},
+	"logDate": 1593342220880,
+	"method": "name.ealen.demo.controller.DemoController#callHttpServletRequest",
+	"reqUrl": "http://localhost:9527/callHttpServletRequest",
+	"respBody": {
+		"headers": {},
+		"statusCodeValue": 200,
+		"body": null,
+		"statusCode": "OK"
+	},
+	"success": true,
+	"type": "测试API"
+}
+```
 
 
 

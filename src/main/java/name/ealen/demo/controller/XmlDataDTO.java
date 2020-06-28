@@ -1,4 +1,4 @@
-package name.ealen.demo.cotroller;
+package name.ealen.demo.controller;
 
 import lombok.Data;
 
