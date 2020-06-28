@@ -13,12 +13,12 @@ Log4a
 | :------- | :------------ | :------------------------------ | -------------------------------------------------- |
 | clientIp | String        | 请求客户端的Ip                  | 是                                                 |
 | reqUrl   | String        | 请求地址                        | 是                                                 |
-| headers  | String        | 请求头部信息(可选择记录)        | 是,默认记录user-agent                              |
+| headers  | Object        | 请求头部信息(可选择记录)        | 是,默认记录user-agent,content-type            	   |
 | type     | String        | 操作类型                        | 是,默认值undefined                                 |
 | content  | StringBuilder | 操作类型                        | 否,方法内容,可使用Log4.step进行内容步骤记录 |
 | method   | String        | 请求的本地java方法              | 是                                                 |
-| args     | String        | 方法请求参数                    | 否                                                 |
-| respBody | String        | 方法响应参数                    | 否                                                 |
+| args     | Object        | 方法请求参数                    | 是                                                 |
+| respBody | Object        | 方法响应参数                    | 是                                                 |
 | costTime | Long          | 整个方法耗时                    | 是                                                 |
 | logDate  | Long          | Log产生时间                     | 是,默认值是Log4对象初始化的时间               |
 | success  | Boolean       | 执行状态,成功(true)/异常(false) | 是,默认false                                       |
@@ -30,9 +30,9 @@ Log4a
 | type       | String                        | 操作类型                                           | 默认值"undefined"    |
 | method     | boolean                       | 是否记录请求的本地java方法                         | true                 |
 | costTime   | boolean                       | 是否记录整个方法耗时                               | true                 |
-| headers    | String[]                      | 记录的header信息                                   | 默认"User-Agent"     |
-| args       | boolean                       | 是否记录请求参数                                   | false                |
-| respBody   | boolean                       | 是否记录响应参数                                   | false                |
+| headers    | String[]                      | 记录的header信息                                   | 默认"User-Agent","content-type"     |
+| args       | boolean                       | 是否记录请求参数                                   | true                |
+| respBody   | boolean                       | 是否记录响应参数                                   | true                |
 | stackTrace | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到content | false                |
 | costTime   | boolean                       | 是否记录整个方法耗时                               | true                 |
 | collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认空的收集器不指定 |
@@ -102,15 +102,29 @@ public class DemoLogCollector implements LogCollector {
 
 ```json
 {
-	"args": "{\"username\":\"ealen\",\"age\":12}",
-	"clientIp": "192.168.110.1",
+	"args": [{
+		"id": 999,
+		"value": "content"
+	}],
+	"clientIp": "192.168.1.54",
 	"content": "1. 请求来了,执行业务动作\n2. 业务动作执行完成\n",
-	"costTime": 1,
-	"headers": "{\"User-Agent\":\"PostmanRuntime/7.21.0\"}",
-	"logDate": 1579144007437,
+	"costTime": 2,
+	"headers": {
+		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
+		"Content-Type": "application/json"
+	},
+	"logDate": 1592963836735,
 	"method": "name.ealen.demo.cotroller.DemoController.sayHello",
 	"reqUrl": "http://localhost:9527/sayHello",
-	"respBody": "{\"body\":{\"username\":\"ealen\",\"age\":12},\"headers\":{},\"statusCode\":\"OK\",\"statusCodeValue\":200}",
+	"respBody": {
+		"headers": {},
+		"statusCodeValue": 200,
+		"body": {
+			"id": 999,
+			"value": "content"
+		},
+		"statusCode": "OK"
+	},
 	"success": true,
 	"type": "测试API"
 }
