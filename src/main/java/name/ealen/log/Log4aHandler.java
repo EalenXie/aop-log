@@ -6,7 +6,7 @@ import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
 import name.ealen.log.collector.NothingCollector;
 import name.ealen.utils.HttpUtils;
-import name.ealen.utils.SerializeConvert;
+import name.ealen.utils.XmlSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -235,7 +235,7 @@ public class Log4aHandler {
      */
     private Object xmlParam(Object pointArgs) {
         try {
-            return SerializeConvert.javaBeanToXml(pointArgs, pointArgs.getClass());
+            return XmlSerializer.javaBeanToXml(pointArgs, pointArgs.getClass());
         } catch (JAXBException e) {
             log.warn("parse xml data exception : {}",  e.getLinkedException().getMessage());
         }

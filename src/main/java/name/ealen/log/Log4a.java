@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author EalenXie Created on 2020/1/2 17:49.
- * 自定义全局异常注解
+ * 自定义全局日志注解(Log for API)
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
