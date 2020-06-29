@@ -175,23 +175,15 @@ xml格式的数据(参数XML):
 	"args": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><xml><message>1111 </message><username>zhangsan</username></xml>",
 	"clientIp": "192.168.1.54",
 	"content": "",
-	"costTime": 8,
+	"costTime": 4,
 	"headers": {
 		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
 		"Content-Type": "application/xml"
 	},
-	"logDate": 1593342003986,
+	"logDate": 1593394523000,
 	"method": "name.ealen.demo.controller.DemoController#callXml",
 	"reqUrl": "http://localhost:9527/callXml",
-	"respBody": {
-		"body": {
-			"message": "1111 ",
-			"username": "zhangsan"
-		},
-		"headers": {},
-		"statusCode": "OK",
-		"statusCodeValue": 200
-	},
+	"respBody": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><xml><message>1111 </message><username>zhangsan</username></xml>",
 	"success": true,
 	"type": "测试API"
 }

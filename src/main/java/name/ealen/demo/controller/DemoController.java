@@ -48,12 +48,12 @@ public class DemoController {
 
     /**
      * XML 格式数据测试
+     * 也返回XML
      */
     @PostMapping(value = "/callXml", consumes = {MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<?> callXml(@RequestBody XmlDataDTO dataDTO) {
-        return ResponseEntity.ok(dataDTO);
+    public XmlDataDTO callXml(@RequestBody XmlDataDTO dataDTO) {
+        return dataDTO;
     }
-
 
     /**
      * 特殊对象测试

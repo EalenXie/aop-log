@@ -237,7 +237,7 @@ public class Log4aHandler {
         try {
             return SerializeConvert.javaBeanToXml(pointArgs, pointArgs.getClass());
         } catch (JAXBException e) {
-            log.warn("parse xml data exception : {}", e.getMessage());
+            log.warn("parse xml data exception : {}",  e.getLinkedException().getMessage());
         }
         return pointArgs;
     }
