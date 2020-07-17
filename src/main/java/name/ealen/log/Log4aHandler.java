@@ -1,12 +1,10 @@
 package name.ealen.log;
 
-import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
 import name.ealen.log.collector.NothingCollector;
 import name.ealen.utils.HttpUtils;
-import name.ealen.utils.XmlSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -19,7 +17,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -31,11 +32,8 @@ import java.util.Map;
 @Slf4j
 @Component
 public class Log4aHandler {
-
     private LogCollector collector;
-
     private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
-
     @Resource
     private BeanFactory beanFactory;
 
@@ -56,19 +54,23 @@ public class Log4aHandler {
             log4.setType(log4a.type());
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = null;
+            HttpServletResponse response = null;
             if (attributes != null) {
                 request = attributes.getRequest();
+                response = attributes.getResponse();
                 //获取Ip和URL
-                getIpUrl(request, log4);
+                log4.setClientIp(HttpUtils.getIpAddress(request));
+                //获取URL
+                log4.setReqUrl(request.getRequestURL().toString());
                 //获取Header信息
-                getHeaders(request, log4, log4a.headers());
+                log4.setHeaders(getHeadersMap(request, log4a.headers()));
             }
             //记录参数
             if (log4a.args()) {
                 log4.setArgs(getArgs(request, signature.getParameterNames(), point.getArgs()));
             }
             //记录执行(响应,状态,耗时,并进行日志收集)
-            return proceed(log4a, log4, point, request);
+            return proceed(log4a, log4, point, response);
         }
         return point.proceed();
     }
@@ -76,12 +78,18 @@ public class Log4aHandler {
     /**
      * 方法执行
      */
-    private Object proceed(Log4a log4a, Log4 log4, ProceedingJoinPoint point, HttpServletRequest request) throws Throwable {
+    private Object proceed(Log4a log4a, Log4 log4, ProceedingJoinPoint point, HttpServletResponse response) throws Throwable {
         try {
             // 方法逻辑执行
             Object result = point.proceed();
             //是否记录响应
-            if (log4a.respBody()) log4.setRespBody(getResponse(request, result));
+            if (log4a.respBody()) {
+                if (response != null && MediaType.APPLICATION_XML_VALUE.equals(response.getContentType())) {
+                    log4.setRespBody(xmlParam(result));
+                } else {
+                    log4.setRespBody(result);
+                }
+            }
             //记录方法完成状态 成功
             log4.setSuccess(true);
             return result;
@@ -136,26 +144,12 @@ public class Log4aHandler {
     }
 
     /**
-     * 获取ClientIp 和 Url
+     * 获取HeadersMap对象
      *
      * @param request HttpServletRequest
-     * @param log4    记录对象
-     */
-    private void getIpUrl(HttpServletRequest request, Log4 log4) {
-        //记录一下clientIp
-        log4.setClientIp(HttpUtils.getIpAddress(request));
-        //记录一下请求的url
-        log4.setReqUrl(request.getRequestURL().toString());
-    }
-
-    /**
-     * 获取Headers
-     *
-     * @param request HttpServletRequest
-     * @param log4    记录对象
      * @param headers 需要记录的headers列表
      */
-    private void getHeaders(HttpServletRequest request, Log4 log4, String[] headers) {
+    private Map<String, String> getHeadersMap(HttpServletRequest request, String[] headers) {
         // 选取记录的header信息 本例只记录一下User-Agent 可按自己业务进行选择记录
         Map<String, String> headersMap = new HashMap<>();
         for (String header : headers) {
@@ -164,7 +158,7 @@ public class Log4aHandler {
                 headersMap.put(header, request.getHeader(header));
             }
         }
-        log4.setHeaders(headersMap);
+        return headersMap;
     }
 
     /**
@@ -186,7 +180,7 @@ public class Log4aHandler {
             }
             // application/json  application/json;charset=UTF-8 n参数记录
             if (MediaType.APPLICATION_JSON_VALUE.equals(request.getContentType()) || MediaType.APPLICATION_JSON_UTF8_VALUE.equals(request.getContentType())) {
-                return jsonParam(target);
+                return target;
             }
         }
         return getByApplet(parameterNames, args);
@@ -235,35 +229,16 @@ public class Log4aHandler {
      */
     private Object xmlParam(Object pointArgs) {
         try {
-            return XmlSerializer.javaBeanToXml(pointArgs, pointArgs.getClass());
+            StringWriter writer = new StringWriter();
+            Marshaller marshaller = JAXBContext.newInstance(pointArgs.getClass()).createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            marshaller.marshal(pointArgs, writer);
+            return writer.toString().replace("standalone=\"yes\"", "");
         } catch (JAXBException e) {
-            log.warn("parse xml data exception : {}",  e.getLinkedException().getMessage());
+            log.warn("parse xml data exception : {}", e.getLinkedException().getMessage());
         }
         return pointArgs;
-    }
-
-    /**
-     * 解析JSON 数据
-     */
-    private Object jsonParam(Object pointArgs) {
-        try {
-            return JSON.toJSON(pointArgs);
-        } catch (Exception e) {
-            log.warn("parse json data exception : {}", e.getMessage());
-        }
-        return pointArgs;
-    }
-
-    /**
-     * 获取响应数据
-     */
-    private Object getResponse(HttpServletRequest request, Object result) {
-        // application/xml 参数记录
-        if (request != null && MediaType.APPLICATION_XML_VALUE.equals(request.getContentType())) {
-            return xmlParam(result);
-        }
-        //尝试JSON
-        return jsonParam(result);
     }
 
 }

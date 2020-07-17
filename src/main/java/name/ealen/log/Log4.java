@@ -1,10 +1,10 @@
 package name.ealen.log;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
  * @author EalenXie Created on 2019/12/23 16:46.
@@ -54,7 +54,7 @@ public class Log4 {
     /**
      * 操作日期(调用日期)
      */
-    private Long logDate = System.currentTimeMillis();
+    private Date logDate;
     /**
      * 业务处理耗时
      */
@@ -69,7 +69,7 @@ public class Log4 {
      */
     public void toCostTime() {
         Log4 log4 = Log4.getCurrent();
-        log4.setCostTime((System.currentTimeMillis() - getLogDate()));
+        log4.setCostTime((System.currentTimeMillis() - logDate.getTime()));
         Log4.setCurrent(log4);
     }
 
@@ -80,6 +80,7 @@ public class Log4 {
         Log4 log4 = LOG_4_THREAD_LOCAL.get();
         if (log4 == null) {
             log4 = new Log4();
+            log4.setLogDate(new Date());
             LOG_4_THREAD_LOCAL.set(log4);
         }
         return LOG_4_THREAD_LOCAL.get();
@@ -107,11 +108,6 @@ public class Log4 {
         Log4 log4 = getCurrent();
         log4.getContent().append(step).append("\n");
         setCurrent(log4);
-    }
-
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this, SerializerFeature.WriteMapNullValue);
     }
 
 }

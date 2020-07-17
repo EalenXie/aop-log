@@ -1,5 +1,6 @@
 package name.ealen.demo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import name.ealen.log.Log4;
 import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
@@ -18,6 +19,7 @@ import java.io.IOException;
  */
 @Component
 public class DemoLogCollector implements LogCollector {
+    private static final ObjectMapper mapper = new ObjectMapper();
     @Override
     public void collect(Log4 log4) throws LogCollectException {
         try {
@@ -26,7 +28,7 @@ public class DemoLogCollector implements LogCollector {
                 FileUtils.forceMkdir(file.getParentFile());
             }
             try (FileWriter fw = new FileWriter(file, true)) {
-                fw.append(log4.toString());
+                fw.append(mapper.writeValueAsString(log4));
             }
         } catch (IOException e) {
             throw new LogCollectException(e);
