@@ -11,6 +11,9 @@ Log4a
 
 | 字段     | 类型          | 注释                            | 是否默认记录                                       |
 | :------- | :------------ | :------------------------------ | -------------------------------------------------- |
+| appName | String        | 应用名称                  | 是                                                 |
+| host | String        | 主机                  | 是                                                 |
+| port | int        | 端口号                  | 是                                                 |
 | clientIp | String        | 请求客户端的Ip                  | 是                                                 |
 | reqUrl   | String        | 请求地址                        | 是                                                 |
 | headers  | Object        | 请求头部信息(可选择记录)        | 是,默认记录user-agent,content-type            	   |
@@ -21,6 +24,8 @@ Log4a
 | respBody | Object        | 方法响应参数                    | 是                                                 |
 | costTime | Long          | 整个方法耗时                    | 是                                                 |
 | logDate  | Long          | Log产生时间                     | 是,默认值是Log4对象初始化的时间               |
+| threadName  | String          | 线程名称                     | 是               |
+| threadId  | Long          | 线程Id                     | 是               |
 | success  | Boolean       | 执行状态,成功(true)/异常(false) | 是,默认false                                       |
 
 **Log4a 注解选项说明**
@@ -33,7 +38,7 @@ Log4a
 | headers    | String[]                      | 记录的header信息                                   | 默认"User-Agent","content-type"     |
 | args       | boolean                       | 是否记录请求参数                                   | true                |
 | respBody   | boolean                       | 是否记录响应参数                                   | true                |
-| stackTrace | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到content | false                |
+| stackTraceOnErr | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到content | false                |
 | costTime   | boolean                       | 是否记录整个方法耗时                               | true                 |
 | collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认空的收集器不指定 |
 
@@ -45,7 +50,7 @@ Log4a
 直接在Controller 方法或类上加上注解`@Log4a`,可以对该Controller中所有方法进行日志记录与收集
 
 ```java
-@Log4a(type = "测试API", stackTrace = true)
+@Log4a(type = "测试API", stackTraceOnErr = true)
 @RestController
 public class DemoController {
     @Resource
@@ -117,8 +122,16 @@ public class DemoService {
 本例中写了一个最简单的直接append写入到文件中，你可以选择自定义的方式进行日志收集
 
 ```java
+
+/**
+ * @author EalenXie Created on 2020/1/10 17:53.
+ * 配置一个全局的日志收集器
+ * 这里只是做一个简单示例进行说明,请勿使用该收集方法到生产中
+ * 本例直接将日志append到文件中
+ */
 @Component
 public class DemoLogCollector implements LogCollector {
+    private static final ObjectMapper mapper = new ObjectMapper();
     @Override
     public void collect(Log4 log4) throws LogCollectException {
         try {
@@ -127,7 +140,7 @@ public class DemoLogCollector implements LogCollector {
                 FileUtils.forceMkdir(file.getParentFile());
             }
             try (FileWriter fw = new FileWriter(file, true)) {
-                fw.append(log4.toString());
+                fw.append(mapper.writeValueAsString(log4));
             }
         } catch (IOException e) {
             throw new LogCollectException(e);
@@ -141,100 +154,93 @@ public class DemoLogCollector implements LogCollector {
 json格式的数据记录(参数JSON): 
 ```json
 {
-	"args": {
-		"id": 999,
-		"value": "content"
-	},
+	"appName": "log4a",
+	"host": "127.0.0.1",
+	"port": 9527,
 	"clientIp": "192.168.1.54",
-	"content": "1. 请求来了,执行业务动作\n2. 业务动作执行完成\n",
-	"costTime": 2,
+	"reqUrl": "http://localhost:9527/sayHello",
 	"headers": {
 		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
 		"Content-Type": "application/json"
 	},
-	"logDate": 1593341797293,
+	"type": "测试API",
+	"content": "1. 请求来了,执行业务动作\n2. 业务动作执行完成\n",
 	"method": "name.ealen.demo.controller.DemoController#sayHello",
-	"reqUrl": "http://localhost:9527/sayHello",
+	"args": {
+		"id": 999,
+		"value": "content"
+	},
 	"respBody": {
 		"headers": {},
-		"statusCodeValue": 200,
 		"body": {
 			"id": 999,
 			"value": "content"
 		},
+		"statusCodeValue": 200,
 		"statusCode": "OK"
 	},
-	"success": true,
-	"type": "测试API"
+	"logDate": "2020-07-21 08:00:23",
+	"costTime": 8,
+	"threadName": "http-nio-9527-exec-2",
+	"threadId": 38,
+	"success": true
 }
 ```
 
 xml格式的数据(参数XML): 
 ```json
 {
-	"args": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><xml><message>1111 </message><username>zhangsan</username></xml>",
+	"appName": "log4a",
+	"host": "127.0.0.1",
+	"port": 9527,
 	"clientIp": "192.168.1.54",
-	"content": "",
-	"costTime": 4,
+	"reqUrl": "http://localhost:9527/callXml",
 	"headers": {
 		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
 		"Content-Type": "application/xml"
 	},
-	"logDate": 1593394523000,
-	"method": "name.ealen.demo.controller.DemoController#callXml",
-	"reqUrl": "http://localhost:9527/callXml",
-	"respBody": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><xml><message>1111 </message><username>zhangsan</username></xml>",
-	"success": true,
-	"type": "测试API"
-}
-```
-form参数格式的数据(参数键值对形式):
-
-```json
-{
-	"args": "z=11&a=1",
-	"clientIp": "192.168.1.54",
+	"type": "测试API",
 	"content": "",
-	"costTime": 1,
-	"headers": {
-		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)",
-		"Content-Type": "application/x-www-form-urlencoded"
-	},
-	"logDate": 1593342114342,
-	"method": "name.ealen.demo.controller.DemoController#params",
-	"reqUrl": "http://localhost:9527/params",
+	"method": "name.ealen.demo.controller.DemoController#callXml",
+	"args": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><xml><message>1111 </message><username>zhangsan</username></xml>",
 	"respBody": {
-		"headers": {},
-		"statusCodeValue": 200,
-		"body": 1,
-		"statusCode": "OK"
+		"message": "1111 ",
+		"username": "zhangsan"
 	},
-	"success": true,
-	"type": "测试API"
+	"logDate": "2020-07-21 08:01:54",
+	"costTime": 3,
+	"threadName": "http-nio-9527-exec-5",
+	"threadId": 41,
+	"success": true
 }
 ```
 
 特殊参数格式(键值对形式,参数默认取对象的toString()方法):
 ```json
 {
-	"args": "request=org.apache.catalina.connector.RequestFacade@754f30c3",
+	"appName": "log4a",
+	"host": "127.0.0.1",
+	"port": 9527,
 	"clientIp": "192.168.1.54",
-	"content": "",
-	"costTime": 1,
+	"reqUrl": "http://localhost:9527/callHttpServletRequest",
 	"headers": {
 		"User-Agent": "Apache-HttpClient/4.5.10 (Java/11.0.5)"
 	},
-	"logDate": 1593342220880,
+	"type": "测试API",
+	"content": "",
 	"method": "name.ealen.demo.controller.DemoController#callHttpServletRequest",
-	"reqUrl": "http://localhost:9527/callHttpServletRequest",
+	"args": "request=org.apache.catalina.connector.RequestFacade@19d433f",
 	"respBody": {
 		"headers": {},
-		"statusCodeValue": 200,
 		"body": null,
+		"statusCodeValue": 200,
 		"statusCode": "OK"
 	},
-	"success": true,
-	"type": "测试API"
+	"logDate": "2020-07-21 08:02:53",
+	"costTime": 1,
+	"threadName": "http-nio-9527-exec-7",
+	"threadId": 43,
+	"success": true
 }
 ```
 
