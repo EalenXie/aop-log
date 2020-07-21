@@ -22,28 +22,16 @@ public class Log4Aspect {
     @Resource
     private Log4aHandler log4aHandler;
 
+
     /**
-     * 将会切 被LogNote注解标记的类
+     * 将会切 被Log4a注解标记的方法
      */
-    @Pointcut("@within(Log4a)")
-    public void noteClass() {
+    @Pointcut("@annotation(Log4a) || @within(Log4a)")
+    public void logNote() {
         //ig
     }
 
-    /**
-     * 将会切 被LogNote注解标记的方法
-     */
-    @Pointcut("@annotation(Log4a)")
-    public void noteMethod() {
-        //ig
-    }
-
-    @Around("noteClass()")
-    public Object noteClass(ProceedingJoinPoint point) throws Throwable {
-        return logger(point);
-    }
-
-    @Around("noteMethod()")
+    @Around("logNote()")
     public Object noteMethod(ProceedingJoinPoint point) throws Throwable {
         return logger(point);
     }
