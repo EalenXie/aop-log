@@ -38,12 +38,10 @@ public class Log4Aspect {
 
     private Object logger(ProceedingJoinPoint point) throws Throwable {
         try {
-            //1. 获取当前线程日志对象
+            Log4.removeCurrent();
             Log4 log4 = Log4.getCurrent();
-            //2. 程序执行
             return log4aHandler.proceed(log4, point);
         } finally {
-            //3. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
             Log4.removeCurrent();
         }
     }

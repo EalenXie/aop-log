@@ -50,7 +50,7 @@ public @interface Log4a {
     /**
      * 当发生异常时,切面是否记录异常堆栈信息到content
      */
-    boolean stackTrace() default false;
+    boolean stackTraceOnErr() default false;
 
     /**
      * 收集器

@@ -1,5 +1,6 @@
 package name.ealen.log;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,18 @@ public class Log4 {
      * 请务必注意该对象 使用->释放 原则
      */
     private static final ThreadLocal<Log4> LOG_4_THREAD_LOCAL = new ThreadLocal<>();
-
+    /**
+     * 应用名
+     */
+    private String appName;
+    /**
+     * 主机
+     */
+    private String host;
+    /**
+     * 端口号
+     */
+    private Integer port;
     /**
      * 请求Ip
      */
@@ -54,11 +66,20 @@ public class Log4 {
     /**
      * 操作日期(调用日期)
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date logDate;
     /**
      * 业务处理耗时
      */
     private Long costTime;
+    /**
+     * 线程名
+     */
+    private String threadName = Thread.currentThread().getName();
+    /**
+     * 线程Id
+     */
+    private long threadId = Thread.currentThread().getId();
     /**
      * 执行状态 成功(true)/异常(false)  默认失败false
      */
