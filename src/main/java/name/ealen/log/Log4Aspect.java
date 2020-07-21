@@ -2,7 +2,6 @@ package name.ealen.log;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -50,31 +49,15 @@ public class Log4Aspect {
     }
 
     private Object logger(ProceedingJoinPoint point) throws Throwable {
-        //1. 获取当前线程日志对象
-        Log4 log4 = Log4.getCurrent();
-        //2. 程序执行
-        Object result = log4aHandler.proceed(log4, point);
-        //3. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
-        Log4.removeCurrent();
-        return result;
-    }
-
-    /**
-     * 后置异常通知处理完成 之后 交由全局异常通知处理
-     */
-    @AfterThrowing(pointcut = "noteClass()", throwing = "throwable")
-    public void classThrowable(Throwable throwable) {
-        //ig 目前直接交由全局异常通知处理
-        Log4.removeCurrent();
-    }
-
-    /**
-     * 后置异常通知处理完成 之后 交由全局异常通知处理
-     */
-    @AfterThrowing(pointcut = "noteMethod()", throwing = "throwable")
-    public void methodThrowable(Throwable throwable) {
-        //ig 目前直接交由全局异常通知处理
-        Log4.removeCurrent();
+        try {
+            //1. 获取当前线程日志对象
+            Log4 log4 = Log4.getCurrent();
+            //2. 程序执行
+            return log4aHandler.proceed(log4, point);
+        } finally {
+            //3. 当以上过程执行完成并成功后,释放TreadLocal中的操作日志对象资源
+            Log4.removeCurrent();
+        }
     }
 
 }
