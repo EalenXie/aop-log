@@ -10,13 +10,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,20 +35,9 @@ public class Log4aHandler {
     private LogCollector collector;
     private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
     @Resource
-    private Environment environment;
-    @Resource
     private BeanFactory beanFactory;
-    private String appName = "undefined";
-
-    @PostConstruct
-    private void getApplicationName() {
-        try {
-            String name = environment.getProperty("spring.application.name");
-            appName = StringUtils.isNotEmpty(name) ? name : "undefined";
-        } catch (Exception ignore) {
-            //ig
-        }
-    }
+    @Resource
+    private SpringEnvHelper springEnvHelper;
 
     @Resource
     public void setCollector(LogCollector collector) {
@@ -72,7 +59,7 @@ public class Log4aHandler {
                 response = attributes.getResponse();
                 log4.setHost(request.getLocalAddr());
                 log4.setPort(request.getLocalPort());
-                log4.setAppName(appName);
+                log4.setAppName(springEnvHelper.getAppName());
                 log4.setClientIp(HttpUtils.getIpAddress(request));
                 log4.setReqUrl(request.getRequestURL().toString());
                 log4.setHeaders(getHeadersMap(request, log4a.headers()));
