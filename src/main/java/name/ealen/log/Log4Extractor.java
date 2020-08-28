@@ -3,7 +3,6 @@ package name.ealen.log;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import name.ealen.utils.HttpUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -15,11 +14,14 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/8/28 13:36
+ * Log4 参数抽取器
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -132,7 +134,7 @@ public class Log4Extractor {
         if (request != null) {
             log4.setHost(request.getLocalAddr());
             log4.setPort(request.getLocalPort());
-            log4.setClientIp(HttpUtils.getIpAddress(request));
+            log4.setClientIp(getIpAddress(request));
             log4.setReqUrl(request.getRequestURL().toString());
             Map<String, String> headersMap = new HashMap<>();
             for (String header : headers) {
@@ -143,6 +145,35 @@ public class Log4Extractor {
             }
             log4.setHeaders(headersMap);
         }
+    }
+
+    /**
+     * 获取用户IP地址
+     */
+    public static String getIpAddress(HttpServletRequest request) {
+        String[] ipHeaders = {"x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR"};
+        String[] localhostIp = {"127.0.0.1", "0:0:0:0:0:0:0:1"};
+        String ip = request.getRemoteAddr();
+        for (String header : ipHeaders) {
+            if (StringUtils.isNotEmpty(ip) && !"unknown".equalsIgnoreCase(ip)) {
+                break;
+            }
+            ip = request.getHeader(header);
+        }
+        for (String local : localhostIp) {
+            if (StringUtils.isNotEmpty(ip) && ip.equals(local)) {
+                try {
+                    ip = InetAddress.getLocalHost().getHostAddress();
+                } catch (UnknownHostException e) {
+                    log.warn("Get host ip exception , UnknownHostException : {}", e.getMessage());
+                }
+                break;
+            }
+        }
+        if (StringUtils.isNotEmpty(ip) && ip.length() > 15 && ip.contains(",")) {
+            ip = ip.substring(0, ip.indexOf(','));
+        }
+        return ip;
     }
 
 }
