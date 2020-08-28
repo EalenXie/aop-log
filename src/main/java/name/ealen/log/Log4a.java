@@ -18,19 +18,15 @@ import java.lang.annotation.Target;
 public @interface Log4a {
 
     /**
+     * 仅当发生异常时才记录
+     */
+    boolean onlyLogOnErr() default false;
+
+    /**
      * 操作类型(操作分类)
      */
     String type() default "undefined";
 
-    /**
-     * 切面是否记录 请求方法
-     */
-    boolean method() default true;
-
-    /**
-     * 切面是否记录 请求耗时
-     */
-    boolean costTime() default true;
 
     /**
      * 记录的headers ,默认只记录一下 content-type user-agent
@@ -51,6 +47,7 @@ public @interface Log4a {
      * 当发生异常时,切面是否记录异常堆栈信息到content
      */
     boolean stackTraceOnErr() default false;
+
 
     /**
      * 收集器

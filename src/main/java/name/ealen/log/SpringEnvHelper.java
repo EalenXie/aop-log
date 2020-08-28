@@ -1,90 +1,65 @@
 package name.ealen.log;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 /**
  * @author EalenXie create on 2020/7/24 10:24
  */
-@Slf4j
 @Component
-public class SpringEnvHelper {
+public class SpringEnvHelper implements ApplicationContextAware {
+    private static final String[] DEV = {"dev", "default"};
+    private static final String[] SIT = {"sit", "test", "uat"};
+    private static final String[] PROD = {"prod", "prd", "master"};
+    private static String[] profiles;
+    private static String appName;
 
-
-    @Resource
-    private Environment environment;
-
-
-    private String activeProfiles = "default";
-
-    private String appName = "undefined";
-
-    @PostConstruct
-    private void initialize() {
-        appName = getEnvPropertySafely("spring.application.name");
-        activeProfiles = getEnvPropertySafely("spring.profiles.active");
-        if (StringUtils.isEmpty(activeProfiles)) activeProfiles = getEnvPropertySafely("spring.profiles.default");
+    @Override
+    public void setApplicationContext(@Autowired ApplicationContext applicationContext) {
+        appName = applicationContext.getId();
+        profiles = applicationContext.getEnvironment().getActiveProfiles();
+        if (profiles.length == 0) profiles = applicationContext.getEnvironment().getDefaultProfiles();
+        if (profiles.length == 0) profiles = DEV;
     }
 
-    public String getAppName() {
+    public static String getAppName() {
         return appName;
     }
 
-    public String getProfilesActive() {
-        return activeProfiles;
-    }
-
     /**
      * 判断是否是开发环境
      */
-    public boolean isDev() {
-        return isDev("dev", "default");
-    }
-
-    /**
-     * 判断是否是开发环境
-     */
-    public boolean isDev(String... envKeys) {
-        return StringUtils.isEmpty(activeProfiles) || isEnv(envKeys);
+    public static boolean isDev() {
+        return isEnv(DEV);
     }
 
     /**
      * 判断是否是测试环境
      */
-    public boolean isSit() {
-        return isEnv("test", "sit", "uat");
+    public static boolean isSit() {
+        return isEnv(SIT);
     }
 
     /**
      * 判断是否是生产环境
      */
-    public boolean isProd() {
-        return isEnv("prod", "master");
+    public static boolean isProd() {
+        return isEnv(PROD);
     }
 
-
-    public boolean isEnv(String... envKeys) {
+    /**
+     * 判断环境
+     */
+    public static boolean isEnv(String... envKeys) {
         if (envKeys == null || envKeys.length == 0) return false;
-        for (String env : envKeys) {
-            if (env.equalsIgnoreCase(activeProfiles)) return true;
+        if (profiles == envKeys) return true;
+        for (String profile : profiles) {
+            for (String env : envKeys) {
+                if (env.equalsIgnoreCase(profile)) return true;
+            }
         }
         return false;
     }
-
-
-    public String getEnvPropertySafely(String propertyName) {
-        try {
-            return environment.getProperty(propertyName);
-        } catch (Exception ignore) {
-            //ig
-            return "";
-        }
-    }
-
-
 }

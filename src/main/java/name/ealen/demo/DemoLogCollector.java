@@ -5,6 +5,7 @@ import name.ealen.log.Log4;
 import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
 import org.apache.commons.io.FileUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -20,6 +21,8 @@ import java.io.IOException;
 @Component
 public class DemoLogCollector implements LogCollector {
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    @Async
     @Override
     public void collect(Log4 log4) throws LogCollectException {
         try {

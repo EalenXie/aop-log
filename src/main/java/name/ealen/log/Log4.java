@@ -71,7 +71,7 @@ public class Log4 {
     /**
      * 业务处理耗时
      */
-    private Long costTime;
+    private long costTime;
     /**
      * 线程名
      */
@@ -83,7 +83,7 @@ public class Log4 {
     /**
      * 执行状态 成功(true)/异常(false)  默认失败false
      */
-    private Boolean success = false;
+    private boolean success = false;
 
     /**
      * 耗时计算

@@ -27,12 +27,12 @@ public class Log4Aspect {
      * 将会切 被Log4a注解标记的方法
      */
     @Pointcut("@annotation(Log4a) || @within(Log4a)")
-    public void logNote() {
+    public void logNotePointCut() {
         //ig
     }
 
-    @Around("logNote()")
-    public Object noteMethod(ProceedingJoinPoint point) throws Throwable {
+    @Around("logNotePointCut()")
+    public Object note(ProceedingJoinPoint point) throws Throwable {
         return logger(point);
     }
 
