@@ -37,7 +37,7 @@ public class Log4aHandler {
         Log4a log4a = signature.getMethod().getAnnotation(Log4a.class);
         if (log4a == null) log4a = point.getTarget().getClass().getAnnotation(Log4a.class);
         if (log4a != null) {
-            if (!log4a.onlyLogOnErr()) {
+            if (!log4a.logOnErr()) {
                 logProcessBefore(log4a, log4, point);
             }
             return proceed(log4a, log4, point);
@@ -68,7 +68,7 @@ public class Log4aHandler {
             log4.setSuccess(true);
             return result;
         } catch (Throwable throwable) {
-            if (log4a.onlyLogOnErr()) {
+            if (log4a.logOnErr()) {
                 logProcessBefore(log4a, log4, point);
             }
             log4.setSuccess(false);
@@ -82,7 +82,7 @@ public class Log4aHandler {
         } finally {
             log4.toCostTime();
             Log4.setCurrent(log4);
-            if (!log4a.onlyLogOnErr()) {
+            if (!log4a.logOnErr()) {
                 logCollector(log4a, log4);
             } else {
                 if (!log4.isSuccess()) {

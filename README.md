@@ -32,7 +32,7 @@ Log4a
 
 | 选项       | 类型                          | 说明                                               | 默认                 |
 | :--------- | :---------------------------- | :------------------------------------------------- | -------------------- |
-| onlyLogOnErr    | boolean               | 仅当发生异常时才记录                                    | false   |
+| logOnErr    | boolean               | 仅当发生异常时才记录                                    | false   |
 | type       | String                        | 操作类型                                           | 默认值"undefined"    |
 | headers    | String[]                      | 记录的header信息                                   | 默认"User-Agent","content-type"     |
 | args       | boolean                       | 是否记录请求参数                                   | true                |

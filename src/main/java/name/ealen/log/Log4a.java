@@ -20,7 +20,7 @@ public @interface Log4a {
     /**
      * 仅当发生异常时才记录
      */
-    boolean onlyLogOnErr() default false;
+    boolean logOnErr() default false;
 
     /**
      * 操作类型(操作分类)
