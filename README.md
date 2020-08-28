@@ -32,9 +32,8 @@ Log4a
 
 | 选项       | 类型                          | 说明                                               | 默认                 |
 | :--------- | :---------------------------- | :------------------------------------------------- | -------------------- |
+| onlyLogOnErr    | boolean               | 仅当发生异常时才记录                                    | false   |
 | type       | String                        | 操作类型                                           | 默认值"undefined"    |
-| method     | boolean                       | 是否记录请求的本地java方法                         | true                 |
-| costTime   | boolean                       | 是否记录整个方法耗时                               | true                 |
 | headers    | String[]                      | 记录的header信息                                   | 默认"User-Agent","content-type"     |
 | args       | boolean                       | 是否记录请求参数                                   | true                |
 | respBody   | boolean                       | 是否记录响应参数                                   | true                |
