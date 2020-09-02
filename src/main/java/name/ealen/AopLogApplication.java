@@ -9,9 +9,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
  */
 @EnableAsync
 @SpringBootApplication
-public class Log4aApplication {
+public class AopLogApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Log4aApplication.class, args);
+        SpringApplication.run(AopLogApplication.class, args);
     }
 }

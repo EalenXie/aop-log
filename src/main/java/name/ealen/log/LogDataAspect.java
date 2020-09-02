@@ -16,17 +16,17 @@ import javax.annotation.Resource;
 @Component
 @Aspect
 @Slf4j
-public class Log4Aspect {
+public class LogDataAspect {
 
 
     @Resource
-    private Log4aHandler log4aHandler;
+    private AopLogHandler aopLogHandler;
 
 
     /**
-     * 将会切 被Log4a注解标记的方法
+     * 将会切 被AopLog注解标记的方法
      */
-    @Pointcut("@annotation(Log4a) || @within(Log4a)")
+    @Pointcut("@annotation(AopLog) || @within(AopLog)")
     public void logNotePointCut() {
         //ig
     }
@@ -38,11 +38,11 @@ public class Log4Aspect {
 
     private Object logger(ProceedingJoinPoint point) throws Throwable {
         try {
-            Log4.removeCurrent();
-            Log4 log4 = Log4.getCurrent();
-            return log4aHandler.proceed(log4, point);
+            LogData.removeCurrent();
+            LogData data = LogData.getCurrent();
+            return aopLogHandler.proceed(data, point);
         } finally {
-            Log4.removeCurrent();
+            LogData.removeCurrent();
         }
     }
 

@@ -21,11 +21,11 @@ import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/8/28 13:36
- * Log4 参数抽取器
+ * LogData 参数抽取器
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Log4Extractor {
+public class LogDataExtractor {
 
     private static final String AND_REG = "&";
     private static final String EQUALS_REG = "=";
@@ -129,13 +129,13 @@ public class Log4Extractor {
     /**
      * 获取 HttpServletRequest 对象信息
      */
-    public static void logHttpRequest(Log4 log4, String[] headers) {
-        HttpServletRequest request = Log4Extractor.getRequest();
+    public static void logHttpRequest(LogData data, String[] headers) {
+        HttpServletRequest request = LogDataExtractor.getRequest();
         if (request != null) {
-            log4.setHost(request.getLocalAddr());
-            log4.setPort(request.getLocalPort());
-            log4.setClientIp(getIpAddress(request));
-            log4.setReqUrl(request.getRequestURL().toString());
+            data.setHost(request.getLocalAddr());
+            data.setPort(request.getLocalPort());
+            data.setClientIp(getIpAddress(request));
+            data.setReqUrl(request.getRequestURL().toString());
             Map<String, String> headersMap = new HashMap<>();
             for (String header : headers) {
                 String value = request.getHeader(header);
@@ -143,7 +143,7 @@ public class Log4Extractor {
                     headersMap.put(header, request.getHeader(header));
                 }
             }
-            log4.setHeaders(headersMap);
+            data.setHeaders(headersMap);
         }
     }
 

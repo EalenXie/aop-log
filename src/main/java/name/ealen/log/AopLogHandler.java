@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class Log4aHandler {
+public class AopLogHandler {
     private LogCollector collector;
     private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
     @Resource
@@ -32,61 +32,61 @@ public class Log4aHandler {
         this.collector = collector;
     }
 
-    public Object proceed(Log4 log4, ProceedingJoinPoint point) throws Throwable {
+    public Object proceed(LogData data, ProceedingJoinPoint point) throws Throwable {
         MethodSignature signature = (MethodSignature) point.getSignature();
-        Log4a log4a = signature.getMethod().getAnnotation(Log4a.class);
-        if (log4a == null) log4a = point.getTarget().getClass().getAnnotation(Log4a.class);
-        if (log4a != null) {
-            if (!log4a.logOnErr()) {
-                logProcessBefore(log4a, log4, point);
+        AopLog aopLog = signature.getMethod().getAnnotation(AopLog.class);
+        if (aopLog == null) aopLog = point.getTarget().getClass().getAnnotation(AopLog.class);
+        if (aopLog != null) {
+            if (!aopLog.logOnErr()) {
+                logProcessBefore(aopLog, data, point);
             }
-            return proceed(log4a, log4, point);
+            return proceed(aopLog, data, point);
         }
         return point.proceed();
     }
 
-    public void logProcessBefore(Log4a log4a, Log4 log4, ProceedingJoinPoint point) {
+    public void logProcessBefore(AopLog aopLog, LogData data, ProceedingJoinPoint point) {
         MethodSignature signature = (MethodSignature) point.getSignature();
-        log4.setAppName(SpringEnvHelper.getAppName());
-        log4.setType(log4a.type());
-        log4.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
-        Log4Extractor.logHttpRequest(log4, log4a.headers());
-        if (log4a.args()) {
-            log4.setArgs(Log4Extractor.getArgs(signature.getParameterNames(), point.getArgs()));
+        data.setAppName(SpringEnvHelper.getAppName());
+        data.setType(aopLog.type());
+        data.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
+        LogDataExtractor.logHttpRequest(data, aopLog.headers());
+        if (aopLog.args()) {
+            data.setArgs(LogDataExtractor.getArgs(signature.getParameterNames(), point.getArgs()));
         }
     }
 
     /**
      * 方法执行
      */
-    private Object proceed(Log4a log4a, Log4 log4, ProceedingJoinPoint point) throws Throwable {
+    private Object proceed(AopLog aopLog, LogData data, ProceedingJoinPoint point) throws Throwable {
         try {
             Object result = point.proceed();
-            if (log4a.respBody()) {
-                log4.setRespBody(Log4Extractor.getResult(result));
+            if (aopLog.respBody()) {
+                data.setRespBody(LogDataExtractor.getResult(result));
             }
-            log4.setSuccess(true);
+            data.setSuccess(true);
             return result;
         } catch (Throwable throwable) {
-            if (log4a.logOnErr()) {
-                logProcessBefore(log4a, log4, point);
+            if (aopLog.logOnErr()) {
+                logProcessBefore(aopLog, data, point);
             }
-            log4.setSuccess(false);
-            if (log4a.stackTraceOnErr()) {
+            data.setSuccess(false);
+            if (aopLog.stackTraceOnErr()) {
                 try (StringWriter sw = new StringWriter(); PrintWriter writer = new PrintWriter(sw, true)) {
                     throwable.printStackTrace(writer);
-                    Log4.step("Fail : \n" + sw.toString());
+                    LogData.step("Fail : \n" + sw.toString());
                 }
             }
             throw throwable;
         } finally {
-            log4.toCostTime();
-            Log4.setCurrent(log4);
-            if (!log4a.logOnErr()) {
-                logCollector(log4a, log4);
+            data.toCostTime();
+            LogData.setCurrent(data);
+            if (!aopLog.logOnErr()) {
+                logCollector(aopLog, data);
             } else {
-                if (!log4.isSuccess()) {
-                    logCollector(log4a, log4);
+                if (!data.isSuccess()) {
+                    logCollector(aopLog, data);
                 }
             }
         }
@@ -95,12 +95,12 @@ public class Log4aHandler {
     /**
      * 日志收集
      *
-     * @param log4a 日志注解
-     * @param log4  日志定义
+     * @param aopLog 日志注解
+     * @param data   日志数据
      * @throws LogCollectException 日志收集异常
      */
-    private void logCollector(Log4a log4a, Log4 log4) throws LogCollectException {
-        Class<? extends LogCollector> clz = log4a.collector();
+    private void logCollector(AopLog aopLog, LogData data) throws LogCollectException {
+        Class<? extends LogCollector> clz = aopLog.collector();
         if (clz != NothingCollector.class) {
             LogCollector c;
             try {
@@ -112,9 +112,9 @@ public class Log4aHandler {
                     collectors.put(clz, c);
                 }
             }
-            c.collect(log4);
+            c.collect(data);
         } else {
-            collector.collect(log4);
+            collector.collect(data);
         }
     }
 

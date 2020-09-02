@@ -1,13 +1,13 @@
-Log4a
+AopLog
 ==================
 
-#### 基于AOP和ThreadLocal实现的一个Http API 日志模块
+#### 基于AOP和ThreadLocal实现的一个AOP 日志模块
 
 在API每次被请求时,可以在整个方法调用链路中记录一条唯一的API请求日志,可以记录请求中的任意内容,比如传参,响应,请求url,method,clientIp,请求成功或异常,等等,以及HttpServletRequest中的任意内容。
 
-实现的核心为AOP以及ThreadLocal。 AOP 会切所有被Log4a注解的方法,会记录一个线程中唯一一个Log4对象,抓取请求的内容和HttpServletRequest中的内容,并且可以完成自定义的日志收集(例如写入到数据库或者写入到文件),记录无论目标方法成功或失败,在执行完成后都将对ThreadLocal中的资源进行释放。
+实现的核心为AOP以及ThreadLocal。 AOP 会切所有被AopLog注解的方法,会记录一个线程中唯一一个LogData(日志数据)对象,抓取请求的内容和HttpServletRequest中的内容,并且可以完成自定义的日志收集(例如写入到数据库或者写入到文件),记录无论目标方法成功或失败,在执行完成后都将对ThreadLocal中的资源进行释放。
 
-**Log4 记录的内容**
+**LogData 记录的内容**
 
 | 字段     | 类型          | 注释                            | 是否默认记录                                       |
 | :------- | :------------ | :------------------------------ | -------------------------------------------------- |
@@ -18,17 +18,17 @@ Log4a
 | reqUrl   | String        | 请求地址                        | 是                                                 |
 | headers  | Object        | 请求头部信息(可选择记录)        | 是,默认记录user-agent,content-type            	   |
 | type     | String        | 操作类型                        | 是,默认值undefined                                 |
-| content  | StringBuilder | 操作类型                        | 否,方法内容,可使用Log4.step进行内容步骤记录 |
+| content  | StringBuilder | 操作类型                        | 否,方法内容,可使用LogData.step进行内容步骤记录 |
 | method   | String        | 请求的本地java方法              | 是                                                 |
 | args     | Object        | 方法请求参数                    | 是                                                 |
 | respBody | Object        | 方法响应参数                    | 是                                                 |
 | costTime | Long          | 整个方法耗时                    | 是                                                 |
-| logDate  | Long          | Log产生时间                     | 是,默认值是Log4对象初始化的时间               |
-| threadName  | String          | 线程名称                     | 是               |
+| logDate  | Long          | Log产生时间                     | 是,默认值是LogData对象初始化的时间               |
+| threadName  | String      | 线程名称                     | 是               |
 | threadId  | Long          | 线程Id                     | 是               |
 | success  | Boolean       | 执行状态,成功(true)/异常(false) | 是,默认false                                       |
 
-**Log4a 注解选项说明**
+**AopLog 注解选项说明**
 
 | 选项       | 类型                          | 说明                                               | 默认                 |
 | :--------- | :---------------------------- | :------------------------------------------------- | -------------------- |
@@ -38,18 +38,17 @@ Log4a
 | args       | boolean                       | 是否记录请求参数                                   | true                |
 | respBody   | boolean                       | 是否记录响应参数                                   | true                |
 | stackTraceOnErr | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到content | false                |
-| costTime   | boolean                       | 是否记录整个方法耗时                               | true                 |
 | collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认空的收集器不指定 |
 
 
 ##### 例子使用说明
 
-######  @Log4a注解使用
+######  @AopLog注解使用
 
-直接在Controller 方法或类上加上注解`@Log4a`,可以对该Controller中所有方法进行日志记录与收集
+直接在Controller 方法或类上加上注解`@AopLog`,可以对该Controller中所有方法进行日志记录与收集
 
 ```java
-@Log4a(type = "测试API", stackTraceOnErr = true)
+@AopLog(type = "测试API", stackTraceOnErr = true)
 @RestController
 public class DemoController {
     @Resource
@@ -94,9 +93,9 @@ public class DemoController {
 }
 ```
 
-###### Log4.step 记录详细
+###### LogData.step 记录详细
 
-这里调用了service方法,Log4.step 方法记录每一个步骤详细内容
+这里调用了service方法,LogData.step 方法记录每一个步骤详细内容
 
 ```java
 /**
@@ -106,12 +105,12 @@ public class DemoController {
 @Slf4j
 public class DemoService {
     /**
-     * 测试方法, 使用Log4.step记录步骤
+     * 测试方法, 使用LogData.step记录步骤
      */
     public void sayHello(Map<String, Object> words) {
-        Log4.step("1. 请求来了,执行业务动作");
+        LogData.step("1. 请求来了,执行业务动作");
         log.info("do somethings");
-        Log4.step("2. 业务动作执行完成");
+        LogData.step("2. 业务动作执行完成");
     }
 }
 ```
@@ -132,14 +131,14 @@ public class DemoService {
 public class DemoLogCollector implements LogCollector {
     private static final ObjectMapper mapper = new ObjectMapper();
     @Override
-    public void collect(Log4 log4) throws LogCollectException {
+    public void collect(LogData data) throws LogCollectException {
         try {
             File file = new File("D:\\home\\temp\\日志.txt");
             if (!file.getParentFile().exists()) {
                 FileUtils.forceMkdir(file.getParentFile());
             }
             try (FileWriter fw = new FileWriter(file, true)) {
-                fw.append(mapper.writeValueAsString(log4));
+                fw.append(mapper.writeValueAsString(data));
             }
         } catch (IOException e) {
             throw new LogCollectException(e);
@@ -153,7 +152,7 @@ public class DemoLogCollector implements LogCollector {
 json格式的数据记录(参数JSON): 
 ```json
 {
-	"appName": "log4a",
+	"appName": "aop-log",
 	"host": "127.0.0.1",
 	"port": 9527,
 	"clientIp": "192.168.1.54",
@@ -189,7 +188,7 @@ json格式的数据记录(参数JSON):
 xml格式的数据(参数XML): 
 ```json
 {
-	"appName": "log4a",
+	"appName": "aop-log",
 	"host": "127.0.0.1",
 	"port": 9527,
 	"clientIp": "192.168.1.54",
@@ -217,7 +216,7 @@ xml格式的数据(参数XML):
 特殊参数格式(键值对形式,参数默认取对象的toString()方法):
 ```json
 {
-	"appName": "log4a",
+	"appName": "aop-log",
 	"host": "127.0.0.1",
 	"port": 9527,
 	"clientIp": "192.168.1.54",

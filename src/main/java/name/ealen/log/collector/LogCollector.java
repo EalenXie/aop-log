@@ -1,6 +1,6 @@
 package name.ealen.log.collector;
 
-import name.ealen.log.Log4;
+import name.ealen.log.LogData;
 
 /**
  * @author EalenXie Created on 2020/1/7 9:12.
@@ -10,8 +10,8 @@ public interface LogCollector {
     /**
      * 日志收集
      *
-     * @param log4 日志定义
+     * @param data 日志数据对象
      * @throws LogCollectException 收集异常时将会抛出日志收集异常
      */
-    void collect(Log4 log4) throws LogCollectException;
+    void collect(LogData data) throws LogCollectException;
 }

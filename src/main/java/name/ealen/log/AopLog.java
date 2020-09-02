@@ -11,11 +11,11 @@ import java.lang.annotation.Target;
 
 /**
  * @author EalenXie Created on 2020/1/2 17:49.
- * 自定义全局日志注解(Log for API)
+ * 自定义切面 AopLog 注解
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Log4a {
+public @interface AopLog {
 
     /**
      * 仅当发生异常时才记录
@@ -27,9 +27,8 @@ public @interface Log4a {
      */
     String type() default "undefined";
 
-
     /**
-     * 记录的headers ,默认只记录一下 content-type user-agent
+     * 记录的headers ,默认记录 content-type user-agent
      */
     String[] headers() default {HttpHeaders.USER_AGENT, HttpHeaders.CONTENT_TYPE};
 
@@ -47,7 +46,6 @@ public @interface Log4a {
      * 当发生异常时,切面是否记录异常堆栈信息到content
      */
     boolean stackTraceOnErr() default false;
-
 
     /**
      * 收集器

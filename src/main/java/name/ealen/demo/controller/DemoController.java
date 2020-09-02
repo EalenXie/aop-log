@@ -1,7 +1,7 @@
 package name.ealen.demo.controller;
 
 import name.ealen.demo.service.DemoService;
-import name.ealen.log.Log4a;
+import name.ealen.log.AopLog;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import java.util.Map;
  * 测试接口 记录异常到堆栈,记录请求参数,和响应参数
  * 进行各种测试 支持FORM, XML, JSON ,特殊对象,普通参数等记录
  */
-@Log4a(type = "测试API", stackTraceOnErr = true)
+@AopLog(type = "测试API", stackTraceOnErr = true)
 @RestController
 public class DemoController {
     @Resource

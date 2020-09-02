@@ -2,6 +2,6 @@ server:
   port: 9527
 spring:
   application:
-    name: log4a
+    name: aop-log
 
 
