@@ -18,7 +18,7 @@ AopLog
 | reqUrl   | String        | 请求地址                        | 是                                                 |
 | headers  | Object        | 请求头部信息(可选择记录)        | 是,默认记录user-agent,content-type            	   |
 | type     | String        | 操作类型                        | 是,默认值undefined                                 |
-| content  | StringBuilder | 操作类型                        | 否,方法内容,可使用LogData.step进行内容步骤记录 |
+| content  | StringBuilder | 方法步骤内容                     | 否,方法内容,可使用LogData.step进行内容步骤记录 |
 | method   | String        | 请求的本地java方法              | 是                                                 |
 | args     | Object        | 方法请求参数                    | 是                                                 |
 | respBody | Object        | 方法响应参数                    | 是                                                 |
