@@ -8,6 +8,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -24,8 +26,15 @@ import java.util.Map;
 public class AopLogHandler {
     private LogCollector collector;
     private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
+
     @Resource
     private BeanFactory beanFactory;
+
+    private final String appName;
+
+    public AopLogHandler(@Autowired ApplicationContext applicationContext) {
+        this.appName = applicationContext.getId();
+    }
 
     @Resource
     public void setCollector(LogCollector collector) {
@@ -45,9 +54,12 @@ public class AopLogHandler {
         return point.proceed();
     }
 
+    /**
+     * 执行前记录
+     */
     public void logProcessBefore(AopLog aopLog, LogData data, ProceedingJoinPoint point) {
         MethodSignature signature = (MethodSignature) point.getSignature();
-        data.setAppName(SpringEnvHelper.getAppName());
+        data.setAppName(appName);
         data.setType(aopLog.type());
         data.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
         LogDataExtractor.logHttpRequest(data, aopLog.headers());
@@ -57,7 +69,7 @@ public class AopLogHandler {
     }
 
     /**
-     * 方法执行
+     * 方法执行处理
      */
     private Object proceed(AopLog aopLog, LogData data, ProceedingJoinPoint point) throws Throwable {
         try {
