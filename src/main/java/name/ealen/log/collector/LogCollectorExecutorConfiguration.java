@@ -40,6 +40,8 @@ public class LogCollectorExecutorConfiguration implements AsyncConfigurer {
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(256);
         executor.setThreadNamePrefix("LogCollectorAsyncExecutor-");
+        executor.setRejectedExecutionHandler((r, exec) -> log.error("LogCollectorAsyncExecutor thread queue is full,activeCount:{},Subsequent collection tasks will be rejected,please check your LogCollector or config your Executor",
+                exec.getActiveCount()));
         executor.initialize();
         return executor;
     }
@@ -47,7 +49,7 @@ public class LogCollectorExecutorConfiguration implements AsyncConfigurer {
 
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return (ex, method, params) -> log.error("LogCollectorExecutor Exception [method: {} ,params: {} ]", method, params, ex);
+        return (ex, method, params) -> log.error("LogCollectorExecutor execution Exception [method: {} ,params: {} ]", method, params, ex);
     }
 
 }
