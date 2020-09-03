@@ -1,22 +1,14 @@
 package name.ealen.log;
 
 import lombok.extern.slf4j.Slf4j;
-import name.ealen.log.collector.LogCollectException;
-import name.ealen.log.collector.LogCollector;
-import name.ealen.log.collector.NothingCollector;
+import name.ealen.log.collector.LogCollectorExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/6/28 15:07
@@ -24,21 +16,14 @@ import java.util.Map;
 @Slf4j
 @Component
 public class AopLogHandler {
-    private LogCollector collector;
-    private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
 
-    @Resource
-    private BeanFactory beanFactory;
+    private final LogCollectorExecutor logCollectorExecutor;
 
     private final String appName;
 
-    public AopLogHandler(@Autowired ApplicationContext applicationContext) {
-        this.appName = applicationContext.getId();
-    }
-
-    @Resource
-    public void setCollector(LogCollector collector) {
-        this.collector = collector;
+    public AopLogHandler(@Autowired LogCollectorExecutor logCollectorExecutor) {
+        this.logCollectorExecutor = logCollectorExecutor;
+        this.appName = logCollectorExecutor.getApplicationContext().getId();
     }
 
     public Object proceed(LogData data, ProceedingJoinPoint point) throws Throwable {
@@ -94,40 +79,11 @@ public class AopLogHandler {
         } finally {
             data.toCostTime();
             LogData.setCurrent(data);
-            if (!aopLog.logOnErr()) {
-                logCollector(aopLog, data);
-            } else {
-                if (!data.isSuccess()) {
-                    logCollector(aopLog, data);
-                }
+            if (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
+                logCollectorExecutor.execute(aopLog.collector(), data);
             }
         }
     }
 
-    /**
-     * 日志收集
-     *
-     * @param aopLog 日志注解
-     * @param data   日志数据
-     * @throws LogCollectException 日志收集异常
-     */
-    private void logCollector(AopLog aopLog, LogData data) throws LogCollectException {
-        Class<? extends LogCollector> clz = aopLog.collector();
-        if (clz != NothingCollector.class) {
-            LogCollector c;
-            try {
-                c = beanFactory.getBean(clz);
-            } catch (Exception e) {
-                c = collectors.get(clz);
-                if (c == null) {
-                    c = BeanUtils.instantiateClass(clz);
-                    collectors.put(clz, c);
-                }
-            }
-            c.collect(data);
-        } else {
-            collector.collect(data);
-        }
-    }
 
 }

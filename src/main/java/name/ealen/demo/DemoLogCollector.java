@@ -2,10 +2,8 @@ package name.ealen.demo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import name.ealen.log.LogData;
-import name.ealen.log.collector.LogCollectException;
 import name.ealen.log.collector.LogCollector;
 import org.apache.commons.io.FileUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -22,9 +20,8 @@ import java.io.IOException;
 public class DemoLogCollector implements LogCollector {
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    @Async
     @Override
-    public void collect(LogData data) throws LogCollectException {
+    public void collect(LogData data) {
         try {
             File file = new File("D:\\home\\temp\\日志.txt");
             if (!file.getParentFile().exists()) {
@@ -34,7 +31,7 @@ public class DemoLogCollector implements LogCollector {
                 fw.append(mapper.writeValueAsString(data));
             }
         } catch (IOException e) {
-            throw new LogCollectException(e);
+            e.printStackTrace();
         }
     }
 }
