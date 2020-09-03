@@ -1,4 +1,4 @@
-package name.ealen.demo.controller;
+package io.github.demo.controller;
 
 import lombok.Data;
 

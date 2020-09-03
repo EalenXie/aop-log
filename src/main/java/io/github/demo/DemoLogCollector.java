@@ -1,8 +1,9 @@
-package name.ealen.demo;
+package io.github.demo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import name.ealen.log.LogData;
-import name.ealen.log.collector.LogCollector;
+
+import io.github.log.LogData;
+import io.github.log.collector.LogCollector;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 

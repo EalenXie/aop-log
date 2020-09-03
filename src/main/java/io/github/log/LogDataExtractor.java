@@ -1,4 +1,4 @@
-package name.ealen.log;
+package io.github.log;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

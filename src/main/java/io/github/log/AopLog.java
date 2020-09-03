@@ -1,7 +1,8 @@
-package name.ealen.log;
+package io.github.log;
 
-import name.ealen.log.collector.LogCollector;
-import name.ealen.log.collector.NothingCollector;
+
+import io.github.log.collector.LogCollector;
+import io.github.log.collector.NothingCollector;
 import org.springframework.http.HttpHeaders;
 
 import java.lang.annotation.ElementType;

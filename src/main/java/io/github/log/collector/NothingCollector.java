@@ -1,6 +1,7 @@
-package name.ealen.log.collector;
+package io.github.log.collector;
 
-import name.ealen.log.LogData;
+
+import io.github.log.LogData;
 
 /**
  * @author EalenXie Created on 2020/1/13 18:00.

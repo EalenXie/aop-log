@@ -1,4 +1,4 @@
-package name.ealen.log.collector;
+package io.github.log.collector;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;

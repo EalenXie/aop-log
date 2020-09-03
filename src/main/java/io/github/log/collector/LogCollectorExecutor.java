@@ -1,6 +1,6 @@
-package name.ealen.log.collector;
+package io.github.log.collector;
 
-import name.ealen.log.LogData;
+import io.github.log.LogData;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

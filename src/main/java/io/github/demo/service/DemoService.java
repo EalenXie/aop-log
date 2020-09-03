@@ -1,7 +1,7 @@
-package name.ealen.demo.service;
+package io.github.demo.service;
 
+import io.github.log.LogData;
 import lombok.extern.slf4j.Slf4j;
-import name.ealen.log.LogData;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

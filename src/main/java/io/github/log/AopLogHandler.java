@@ -1,7 +1,7 @@
-package name.ealen.log;
+package io.github.log;
 
+import io.github.log.collector.LogCollectorExecutor;
 import lombok.extern.slf4j.Slf4j;
-import name.ealen.log.collector.LogCollectorExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;

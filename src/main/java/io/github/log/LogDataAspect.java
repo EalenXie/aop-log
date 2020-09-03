@@ -1,4 +1,4 @@
-package name.ealen.log;
+package io.github.log;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

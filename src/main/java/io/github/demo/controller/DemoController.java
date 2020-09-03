@@ -1,7 +1,7 @@
-package name.ealen.demo.controller;
+package io.github.demo.controller;
 
-import name.ealen.demo.service.DemoService;
-import name.ealen.log.AopLog;
+import io.github.demo.service.DemoService;
+import io.github.log.AopLog;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

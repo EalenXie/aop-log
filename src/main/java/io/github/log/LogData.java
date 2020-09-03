@@ -1,4 +1,4 @@
-package name.ealen.log;
+package io.github.log;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
