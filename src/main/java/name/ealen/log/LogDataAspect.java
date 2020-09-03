@@ -27,16 +27,16 @@ public class LogDataAspect {
      * 将会切 被AopLog注解标记的方法
      */
     @Pointcut("@annotation(AopLog) || @within(AopLog)")
-    public void logNotePointCut() {
+    public void aopLogPointCut() {
         //ig
     }
 
-    @Around("logNotePointCut()")
+    @Around("aopLogPointCut()")
     public Object note(ProceedingJoinPoint point) throws Throwable {
-        return logger(point);
+        return aopLog(point);
     }
 
-    private Object logger(ProceedingJoinPoint point) throws Throwable {
+    private Object aopLog(ProceedingJoinPoint point) throws Throwable {
         try {
             LogData.removeCurrent();
             LogData data = LogData.getCurrent();

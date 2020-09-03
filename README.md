@@ -32,12 +32,13 @@ AopLog
 
 | 选项       | 类型                          | 说明                                               | 默认                 |
 | :--------- | :---------------------------- | :------------------------------------------------- | -------------------- |
-| logOnErr    | boolean               | 仅当发生异常时才记录                                    | false   |
+| logOnErr    | boolean               | 仅当发生异常时才记录收集                                    | false   |
 | type       | String                        | 操作类型                                           | 默认值"undefined"    |
 | headers    | String[]                      | 记录的header信息                                   | 默认"User-Agent","content-type"     |
 | args       | boolean                       | 是否记录请求参数                                   | true                |
 | respBody   | boolean                       | 是否记录响应参数                                   | true                |
 | stackTraceOnErr | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到content | false                |
+| asyncMode | boolean                       |  异步方式收集 | true                |
 | collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认空的收集器不指定 |
 
 

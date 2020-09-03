@@ -48,6 +48,11 @@ public @interface AopLog {
     boolean stackTraceOnErr() default false;
 
     /**
+     * 异步模式 收集日志
+     */
+    boolean asyncMode() default true;
+
+    /**
      * 收集器
      */
     Class<? extends LogCollector> collector() default NothingCollector.class;

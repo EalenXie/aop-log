@@ -80,7 +80,11 @@ public class AopLogHandler {
             data.toCostTime();
             LogData.setCurrent(data);
             if (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
-                logCollectorExecutor.execute(aopLog.collector(), data);
+                if (aopLog.asyncMode()) {
+                    logCollectorExecutor.asyncExecute(aopLog.collector(), data);
+                } else {
+                    logCollectorExecutor.execute(aopLog.collector(), data);
+                }
             }
         }
     }

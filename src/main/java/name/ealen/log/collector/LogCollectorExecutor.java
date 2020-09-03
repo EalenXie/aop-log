@@ -1,8 +1,6 @@
 package name.ealen.log.collector;
 
 import name.ealen.log.LogData;
-import name.ealen.log.collector.LogCollector;
-import name.ealen.log.collector.NothingCollector;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -35,13 +33,30 @@ public class LogCollectorExecutor {
     }
 
     /**
-     * 日志收集
+     * 异步模式日志收集
      *
-     * @param clz     日志收集Class对象
+     * @param clz     日志收集器Class对象
      * @param logData 日志数据
      */
     @Async
+    public void asyncExecute(Class<? extends LogCollector> clz, LogData logData) {
+        getExecuteLogCollector(clz).collect(logData);
+    }
+
+    /**
+     * 同步模式收集日志
+     *
+     * @param clz     日志收集器Class对象
+     * @param logData 日志数据
+     */
     public void execute(Class<? extends LogCollector> clz, LogData logData) {
+        getExecuteLogCollector(clz).collect(logData);
+    }
+
+    /**
+     * 获取指定的日志收集器
+     */
+    private LogCollector getExecuteLogCollector(Class<? extends LogCollector> clz) {
         if (clz != NothingCollector.class) {
             LogCollector c;
             try {
@@ -53,11 +68,10 @@ public class LogCollectorExecutor {
                     collectors.put(clz, c);
                 }
             }
-            c.collect(logData);
+            return c;
         } else {
-            collector.collect(logData);
+            return collector;
         }
     }
-
 
 }
