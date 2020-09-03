@@ -1,8 +1,6 @@
 package name.ealen.log.collector;
 
 import lombok.extern.slf4j.Slf4j;
-import name.ealen.log.collector.LogCollector;
-import name.ealen.log.collector.NothingCollector;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +47,7 @@ public class LogCollectorExecutorConfiguration implements AsyncConfigurer {
 
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return (ex, method, params) -> log.error("LogCollectorExecutor Exception [method: {}  ,params:{}]", method, params, ex);
+        return (ex, method, params) -> log.error("LogCollectorExecutor Exception [method: {} ,params: {} ]", method, params, ex);
     }
 
 }
