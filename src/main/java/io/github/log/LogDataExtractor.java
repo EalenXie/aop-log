@@ -136,6 +136,7 @@ public class LogDataExtractor {
             data.setPort(request.getLocalPort());
             data.setClientIp(getIpAddress(request));
             data.setReqUrl(request.getRequestURL().toString());
+            data.setHttpMethod(request.getMethod());
             Map<String, String> headersMap = new HashMap<>();
             for (String header : headers) {
                 String value = request.getHeader(header);

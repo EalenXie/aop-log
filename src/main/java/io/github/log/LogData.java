@@ -40,6 +40,10 @@ public class LogData {
      */
     private String reqUrl;
     /**
+     * http请求method
+     */
+    private String httpMethod;
+    /**
      * 请求头部信息(可选择记录)
      */
     private Object headers;
