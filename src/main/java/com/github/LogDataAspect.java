@@ -10,16 +10,14 @@ import javax.annotation.Resource;
 
 /**
  * @author EalenXie Created on 2020/1/2 17:52.
- * 全局异常日志 切面处理
+ * LogData Aspect
  */
 @Component
 @Aspect
 public class LogDataAspect {
 
-
     @Resource
-    private AopLogHandler aopLogHandler;
-
+    private AopLogProcessor aopLogProcessor;
 
     /**
      * 将会切 被AopLog注解标记的方法
@@ -38,7 +36,7 @@ public class LogDataAspect {
         try {
             LogData.removeCurrent();
             LogData data = LogData.getCurrent();
-            return aopLogHandler.proceed(data, point);
+            return aopLogProcessor.proceed(data, point);
         } finally {
             LogData.removeCurrent();
         }

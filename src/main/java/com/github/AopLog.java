@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author EalenXie Created on 2020/1/2 17:49.
- * 自定义切面 AopLog 注解
+ * AopLog Annotation
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

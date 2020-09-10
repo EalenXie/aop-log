@@ -15,6 +15,7 @@ import java.util.concurrent.Executor;
 
 /**
  * @author EalenXie Created on 2020/1/14 10:24.
+ *
  */
 @EnableAsync
 @Configuration

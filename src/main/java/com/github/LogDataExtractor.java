@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/8/28 13:36
- * LogData 参数抽取器
+ * LogData Extractor 数据抽取器
  */
 public class LogDataExtractor {
 

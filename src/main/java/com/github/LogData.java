@@ -5,7 +5,8 @@ import java.util.Date;
 
 /**
  * @author EalenXie Created on 2019/12/23 16:46.
- * 自定义日志数据对象 线程单例(不提供对外的构造方法,每个线程中仅有一个此对象)
+ * Log data object (no external constructor is provided; there is only one such object per thread)
+ * 自定义日志数据对象 (不提供对外的构造方法,每个线程中仅有一个此对象)
  */
 public class LogData {
 

@@ -11,15 +11,17 @@ import java.io.StringWriter;
 
 /**
  * @author EalenXie create on 2020/6/28 15:07
+ * AopLog 切面处理器
+ * LogData Aspect Processor
  */
 @Component
-public class AopLogHandler {
+public class AopLogProcessor {
 
     private final LogCollectorExecutor logCollectorExecutor;
 
     private final String appName;
 
-    public AopLogHandler(@Autowired LogCollectorExecutor logCollectorExecutor) {
+    public AopLogProcessor(@Autowired LogCollectorExecutor logCollectorExecutor) {
         this.logCollectorExecutor = logCollectorExecutor;
         this.appName = logCollectorExecutor.getApplicationContext().getId();
     }

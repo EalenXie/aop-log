@@ -13,6 +13,7 @@ import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/9/3 13:29
+ * Log collection executor
  */
 @Component
 public class LogCollectorExecutor {
@@ -33,7 +34,7 @@ public class LogCollectorExecutor {
     }
 
     /**
-     * 异步模式日志收集
+     * AsyncMode log collection 异步模式日志收集
      *
      * @param clz     日志收集器Class对象
      * @param logData 日志数据
@@ -54,7 +55,7 @@ public class LogCollectorExecutor {
     }
 
     /**
-     * 获取指定的日志收集器
+     * Get the specified log collector 获取指定的日志收集器
      */
     private LogCollector getExecuteLogCollector(Class<? extends LogCollector> clz) {
         if (clz != NothingCollector.class) {
