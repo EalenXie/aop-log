@@ -1,8 +1,8 @@
-package io.github.log;
+package com.github;
 
 
-import io.github.log.collector.LogCollector;
-import io.github.log.collector.NothingCollector;
+import com.github.collector.LogCollector;
+import com.github.collector.NothingCollector;
 import org.springframework.http.HttpHeaders;
 
 import java.lang.annotation.ElementType;

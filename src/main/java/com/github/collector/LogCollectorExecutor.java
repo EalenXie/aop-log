@@ -1,6 +1,6 @@
-package io.github.log.collector;
+package com.github.collector;
 
-import io.github.log.LogData;
+import com.github.LogData;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

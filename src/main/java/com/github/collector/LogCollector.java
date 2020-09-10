@@ -1,7 +1,7 @@
-package io.github.log.collector;
+package com.github.collector;
 
 
-import io.github.log.LogData;
+import com.github.LogData;
 
 /**
  * @author EalenXie Created on 2020/1/7 9:12.

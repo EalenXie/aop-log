@@ -1,7 +1,6 @@
-package io.github.log;
+package com.github;
 
-import io.github.log.collector.LogCollectorExecutor;
-import lombok.extern.slf4j.Slf4j;
+import com.github.collector.LogCollectorExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import java.io.StringWriter;
 /**
  * @author EalenXie create on 2020/6/28 15:07
  */
-@Slf4j
 @Component
 public class AopLogHandler {
 

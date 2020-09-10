@@ -1,9 +1,5 @@
-package io.github.log;
+package com.github;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -11,9 +7,10 @@ import java.util.Date;
  * @author EalenXie Created on 2019/12/23 16:46.
  * 自定义日志数据对象 线程单例(不提供对外的构造方法,每个线程中仅有一个此对象)
  */
-@Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogData {
+
+    private LogData() {
+    }
 
     /**
      * 请务必注意该对象 使用->释放 原则
@@ -70,7 +67,6 @@ public class LogData {
     /**
      * 操作日期(调用日期)
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date logDate;
     /**
      * 业务处理耗时
@@ -88,6 +84,142 @@ public class LogData {
      * 执行状态 成功(true)/异常(false)  默认失败false
      */
     private boolean success = false;
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public String getClientIp() {
+        return clientIp;
+    }
+
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
+    }
+
+    public String getReqUrl() {
+        return reqUrl;
+    }
+
+    public void setReqUrl(String reqUrl) {
+        this.reqUrl = reqUrl;
+    }
+
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
+    }
+
+    public Object getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Object headers) {
+        this.headers = headers;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public StringBuilder getContent() {
+        return content;
+    }
+
+    public void setContent(StringBuilder content) {
+        this.content = content;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public Object getArgs() {
+        return args;
+    }
+
+    public void setArgs(Object args) {
+        this.args = args;
+    }
+
+    public Object getRespBody() {
+        return respBody;
+    }
+
+    public void setRespBody(Object respBody) {
+        this.respBody = respBody;
+    }
+
+    public Date getLogDate() {
+        return logDate;
+    }
+
+    public void setLogDate(Date logDate) {
+        this.logDate = logDate;
+    }
+
+    public long getCostTime() {
+        return costTime;
+    }
+
+    public void setCostTime(long costTime) {
+        this.costTime = costTime;
+    }
+
+    public String getThreadName() {
+        return threadName;
+    }
+
+    public void setThreadName(String threadName) {
+        this.threadName = threadName;
+    }
+
+    public long getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
 
     /**
      * 耗时计算
@@ -134,5 +266,4 @@ public class LogData {
         data.getContent().append(step).append("\n");
         setCurrent(data);
     }
-
 }

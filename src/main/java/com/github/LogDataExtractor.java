@@ -1,9 +1,7 @@
-package io.github.log;
+package com.github;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -23,9 +21,13 @@ import java.util.Map;
  * @author EalenXie create on 2020/8/28 13:36
  * LogData 参数抽取器
  */
-@Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogDataExtractor {
+
+    private static final Log log = LogFactory.getLog(LogDataExtractor.class);
+
+    private LogDataExtractor() {
+
+    }
 
     private static final String AND_REG = "&";
     private static final String EQUALS_REG = "=";
@@ -66,14 +68,13 @@ public class LogDataExtractor {
         else target = args;
         if (target == null) return null;
         HttpServletRequest request = getRequest();
-        if (request != null && StringUtils.isNotEmpty(request.getContentType())) {
+        if (request != null && request.getContentType() != null
+                && request.getContentType().length() > 0) {
             String contentType = request.getContentType();
             if (MediaType.APPLICATION_XML_VALUE.equals(contentType)) {
                 return xmlArgs(target);
             }
-            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType) ||
-                    MediaType.APPLICATION_JSON_VALUE.equals(contentType) ||
-                    MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
+            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType) || MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
                 return target;
             }
         }
@@ -120,7 +121,7 @@ public class LogDataExtractor {
             marshaller.marshal(pointArgs, writer);
             return writer.toString().replace("standalone=\"yes\"", "");
         } catch (JAXBException e) {
-            log.warn("parse xml data exception : {}", e.getLinkedException().getMessage());
+            log.warn("parse xml data exception : {}", e.getLinkedException());
         }
         return pointArgs;
     }
@@ -140,7 +141,7 @@ public class LogDataExtractor {
             Map<String, String> headersMap = new HashMap<>();
             for (String header : headers) {
                 String value = request.getHeader(header);
-                if (StringUtils.isNotEmpty(value)) {
+                if (value != null && value.length() > 0) {
                     headersMap.put(header, request.getHeader(header));
                 }
             }
@@ -156,22 +157,22 @@ public class LogDataExtractor {
         String[] localhostIp = {"127.0.0.1", "0:0:0:0:0:0:0:1"};
         String ip = request.getRemoteAddr();
         for (String header : ipHeaders) {
-            if (StringUtils.isNotEmpty(ip) && !"unknown".equalsIgnoreCase(ip)) {
+            if (ip != null && ip.length() > 0 && !"unknown".equalsIgnoreCase(ip)) {
                 break;
             }
             ip = request.getHeader(header);
         }
         for (String local : localhostIp) {
-            if (StringUtils.isNotEmpty(ip) && ip.equals(local)) {
+            if (ip != null && ip.length() > 0 && ip.equals(local)) {
                 try {
                     ip = InetAddress.getLocalHost().getHostAddress();
                 } catch (UnknownHostException e) {
-                    log.warn("Get host ip exception , UnknownHostException : {}", e.getMessage());
+                    log.warn("Get host ip exception , UnknownHostException : {}", e);
                 }
                 break;
             }
         }
-        if (StringUtils.isNotEmpty(ip) && ip.length() > 15 && ip.contains(",")) {
+        if (ip != null && ip.length() > 15 && ip.contains(",")) {
             ip = ip.substring(0, ip.indexOf(','));
         }
         return ip;

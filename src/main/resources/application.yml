@@ -1,7 +1,0 @@
-server:
-  port: 9527
-spring:
-  application:
-    name: aop-log
-
-
