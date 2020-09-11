@@ -1,7 +1,7 @@
 AopLog
 ==================
 
-#### 基于AOP和ThreadLocal实现的一个AOP 日志模块
+#### 基于Spring AOP和ThreadLocal实现的一个日志收集工具
 
 在API每次被请求时,可以在整个方法调用链路中记录一条唯一的API请求日志,可以记录请求中的任意内容,比如传参,响应,请求url,method,clientIp,请求成功或异常,等等,以及HttpServletRequest中的任意内容。
 
