@@ -7,6 +7,25 @@
     <artifactId>aop-log</artifactId>
     <packaging>jar</packaging>
     <version>1.0</version>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>EalenXie</name>
+            <email>ealenxie@qq.com</email>
+            <url>https://github.com/EalenXie</url>
+        </developer>
+    </developers>
+    <scm>
+        <url>https://github.com/EalenXie/aop-log</url>
+        <connection>https://github.com/EalenXie/aop-log.git</connection>
+        <developerConnection>https://github.com/EalenXie</developerConnection>
+    </scm>
     <properties>
         <spring-boot-starter-web.version>2.3.3.RELEASE</spring-boot-starter-web.version>
         <log4j.version>1.2.17</log4j.version>
@@ -29,6 +48,29 @@
             <version>${log4j.version}</version>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                    <encoding>utf-8</encoding>
+                </configuration>
+            </plugin>
 
+        </plugins>
+    </build>
 </project>
