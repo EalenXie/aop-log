@@ -15,7 +15,6 @@ import java.util.concurrent.Executor;
 
 /**
  * @author EalenXie Created on 2020/1/14 10:24.
- *
  */
 @EnableAsync
 @Configuration
@@ -50,6 +49,9 @@ public class LogCollectorExecutorConfiguration implements AsyncConfigurer {
     }
 
 
+    /**
+     * AsyncUncaughtExceptionHandler
+     */
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return (ex, method, params) -> log.error("LogCollectorExecutor execution Exception [method: " + method + " ,params: " + Arrays.toString(params) + " ]", ex);

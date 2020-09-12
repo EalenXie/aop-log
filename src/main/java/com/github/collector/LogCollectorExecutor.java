@@ -56,6 +56,9 @@ public class LogCollectorExecutor {
 
     /**
      * Get the specified log collector 获取指定的日志收集器
+     *
+     * @param clz 日志收集器Class对象
+     * @return 获取指定的日志收集器
      */
     private LogCollector getExecuteLogCollector(Class<? extends LogCollector> clz) {
         if (clz != NothingCollector.class) {

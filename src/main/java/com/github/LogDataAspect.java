@@ -32,6 +32,11 @@ public class LogDataAspect {
         return aopLog(point);
     }
 
+    /**
+     * @param point aop 切点对象
+     * @return 返回执行结果
+     * @throws Throwable Exceptions in AOP should be thrown out and left to the specific business to handle
+     */
     private Object aopLog(ProceedingJoinPoint point) throws Throwable {
         try {
             LogData.removeCurrent();

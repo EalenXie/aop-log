@@ -26,6 +26,14 @@ public class AopLogProcessor {
         this.appName = logCollectorExecutor.getApplicationContext().getId();
     }
 
+    /**
+     * 处理 日志数据切面
+     *
+     * @param data  日志数据
+     * @param point 切入point对象
+     * @return 返回执行结果
+     * @throws Throwable Exceptions in AOP should be thrown out and left to the specific business to handle
+     */
     public Object proceed(LogData data, ProceedingJoinPoint point) throws Throwable {
         MethodSignature signature = (MethodSignature) point.getSignature();
         AopLog aopLog = signature.getMethod().getAnnotation(AopLog.class);
@@ -39,8 +47,13 @@ public class AopLogProcessor {
         return point.proceed();
     }
 
+
     /**
-     * 执行前记录
+     * 执行前记录 app应用信息 http等信息
+     *
+     * @param aopLog 注解对象
+     * @param data   日志数据
+     * @param point  切入point对象
      */
     public void logProcessBefore(AopLog aopLog, LogData data, ProceedingJoinPoint point) {
         MethodSignature signature = (MethodSignature) point.getSignature();
@@ -54,7 +67,13 @@ public class AopLogProcessor {
     }
 
     /**
-     * 方法执行处理
+     * 方法执行处理记录
+     *
+     * @param aopLog 注解对象
+     * @param data   日志数据
+     * @param point  切入point对象
+     * @return 返回执行结果
+     * @throws Throwable Exceptions in AOP should be thrown out and left to the specific business to handle
      */
     private Object proceed(AopLog aopLog, LogData data, ProceedingJoinPoint point) throws Throwable {
         try {
