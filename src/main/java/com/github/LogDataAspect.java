@@ -4,6 +4,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -12,8 +14,10 @@ import javax.annotation.Resource;
  * @author EalenXie Created on 2020/1/2 17:52.
  * LogData Aspect
  */
+@ComponentScan
 @Component
 @Aspect
+@EnableAspectJAutoProxy(exposeProxy = true)
 public class LogDataAspect {
 
     @Resource
