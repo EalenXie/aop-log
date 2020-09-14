@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -18,6 +19,7 @@ import java.util.concurrent.Executor;
  */
 @EnableAsync
 @Configuration
+@ComponentScan
 public class LogCollectorExecutorConfiguration implements AsyncConfigurer {
 
     private static final Log log = LogFactory.getLog(LogCollectorExecutorConfiguration.class);

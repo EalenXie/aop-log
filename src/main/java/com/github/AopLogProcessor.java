@@ -4,6 +4,7 @@ import com.github.collector.LogCollectorExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.io.PrintWriter;
@@ -15,6 +16,7 @@ import java.io.StringWriter;
  * LogData Aspect Processor
  */
 @Component
+@ComponentScan
 public class AopLogProcessor {
 
     private final LogCollectorExecutor logCollectorExecutor;
