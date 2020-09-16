@@ -1,7 +1,7 @@
 AopLog
 ==================
 
-#### AopLog是基于Spring Aop 和ThreadLocal实现的一个专门对请求方法内容日志的拦截与处理的日志工具包。
+#### AopLog是基于SpringAop和ThreadLocal实现的一个对请求方法内容日志的拦截与处理的日志工具包。
 
 ![](https://img.shields.io/static/v1?label=release&message=2.1&color=green)
 ![](https://img.shields.io/static/v1?label=jar&message=16k&color=green)
@@ -42,6 +42,7 @@ compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.1'
 例如 : 
 
 ```java
+
 import com.github.AopLog;
 import name.ealen.infra.base.resp.RespBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -144,7 +145,8 @@ public class AopLogCollector implements LogCollector {
 记录步骤。(如果某些重要步骤希望被记录下来)
 例如 : 
 
-```
+```java
+
 import com.github.AopLog;
 import com.github.LogData;
 import name.ealen.infra.base.resp.RespBody;
@@ -181,4 +183,7 @@ public class AppController {
 
 ```
 2020-09-16 17:26:20.285  INFO 3284 --- [AsyncExecutor-2] name.ealen.infra.advice.AopLogCollector  : {"appName":"app-template","host":"127.0.0.1","port":8080,"clientIp":"192.168.110.1","reqUrl":"http://localhost:8080/app/sayHello","httpMethod":"GET","headers":{"User-Agent":"Apache-HttpClient/4.5.10 (Java/11.0.5)"},"type":"测试","content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n","method":"name.ealen.api.facade.AppController#sayHello","args":null,"respBody":{"code":"200","desc":"OK","message":"请求成功","dateTime":"2020-09-16 17:26:20","body":"hello EalenXie"},"logDate":1600248380283,"costTime":1,"threadName":"http-nio-8080-exec-2","threadId":32,"success":true}
+```
+```
+"content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n"
 ```
