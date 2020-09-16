@@ -52,7 +52,7 @@ public class LogData {
     /**
      * 方法内容
      */
-    private StringBuilder content = new StringBuilder();
+    private String content;
     /**
      * 操作方法
      */
@@ -150,11 +150,11 @@ public class LogData {
         this.type = type;
     }
 
-    public StringBuilder getContent() {
+    public String getContent() {
         return content;
     }
 
-    public void setContent(StringBuilder content) {
+    public void setContent(String content) {
         this.content = content;
     }
 
@@ -252,8 +252,6 @@ public class LogData {
      * 移除当前线程操作日志对象
      */
     public static void removeCurrent() {
-        LogData data = LOG_DATA.get();
-        if (data != null && data.getContent() != null) data.content.setLength(0);
         LOG_DATA.remove();
     }
 
@@ -264,7 +262,8 @@ public class LogData {
      */
     public static void step(String step) {
         LogData data = getCurrent();
-        data.getContent().append(step).append("\n");
+        if (data.getContent() == null) data.setContent("");
+        data.setContent(data.getContent() + step + "\n");
         setCurrent(data);
     }
 }
