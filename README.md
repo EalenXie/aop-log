@@ -8,13 +8,15 @@ AopLog
 ![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 ![](https://img.shields.io/badge/JDK-1.8+-red.svg)
 
-场景 : 
-1. 我想知道一些重要的请求方法的请求参数,响应参数,请求头,以及耗时,方法是成功还是失败等等信息。
-2. 普通的log.info或warn信息没有所属请求的上下关系,我不知道执行到哪一步发生了异常，并不方便查看和分析。
-3. 正式环境中,我并不想打印太多无意义的info日志(有些只是为了排查问题打印的日志)，只希望在发生异常时记录日志。
-4. 日志的收集,我希望将这些请求的日志记录下来，记录方式我自己决定，比如正常的日志打印，常见的日志写入数据库，日志写入到文件，日志入队列等等。
-5. 整个日志的记录完全不干扰正常请求方法的流程,日志的收集处理异步化,不影响正常请求方法的性能与响应。
-6. 不想日后每个项目工程都写一份这样的Aop拦截处理日志的代码。
+设计目的和场景 : 
+
+1. 使用Spring Aop拦截参数日志目前大部分做法都基本上大同小异,不想日后每个项目工程都写一份这样的Aop拦截处理日志的代码,甚至代码侵入。
+2. 我想知道一些相对重要的请求方法的请求参数,响应参数,请求头,以及内部耗时,方法是成功还是失败等等信息。发生错误时我也不知道执行到哪一步发生了异常，是不是某个参数导致出的逻辑问题。
+3. 普通的log.info或warn信息没有所属请求的上下关系,并不方便查看和分析。
+4. 正式环境中,我并不想打印太多无意义的info日志(有些只是为了排查问题打印的日志,程序正常运行时其实毫无意义)，只希望在发生异常时记录日志或者只希望每次请求只记录一条次关键的请求信息。
+5. 日志的收集,我希望将这些请求的日志记录下来，记录的实现方式我自己决定，比如正常的日志打印，常见的日志写入数据库，日志写入到文件，日志入队列等等。
+6. 整个日志的记录完全不干扰正常请求方法的流程,日志的收集处理异步化,完全不影响正常请求方法的性能与响应。
+7. 只需要通过`@AopLog`注解决定是否记录。
 
 
 ### 快速开始  
@@ -37,7 +39,7 @@ compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.1'
 
 #### @AopLog注解使用，进行日志记录
 
-直接在类(作用类的所有方法)或类方法(作用于方法)上加上注解@AopLog,进行日志记录
+直接在类(作用类的所有方法)或类方法(作用于方法)上加上注解`@AopLog`,进行日志记录
 
 例如 : 
 
@@ -96,7 +98,7 @@ public class AopLogCollector implements LogCollector {
     }
 }
 ```
-配置@Component的全局日志收集器只能配置一个。
+配置`@Component`的全局日志收集器只能配置一个。
 
 
 接口调用 `/say/hello` 测试即可看看到控制台打印出结果 : 
@@ -120,7 +122,7 @@ public class AopLogCollector implements LogCollector {
 | method  | String | 请求的本地java方法  | 
 | args     | Object | 方法请求参数  |
 | respBody | Object | 方法响应参数  |
-| costTime | long | 整个方法耗时|
+| costTime | long | 整个方法内部耗时|
 | logDate  | Date | Log产生时间,LogData对象初始化的时间 |
 | threadName  | String | 线程名称|
 | threadId  | long | 线程Id |
@@ -177,7 +179,7 @@ public class AppController {
 
 ```
 
-注意: 此方法如果不在被@AopLog注解的方法的整体调用链路中使用，则当前线程中的ThreadLocal中的LogData不会释放，需要手动调用LogData.removeCurrent();
+注意: 此方法如果不在被`@AopLog`注解的方法的整体调用链路中使用，则当前线程中的ThreadLocal中的`LogData`不会释放，需要手动调用LogData.removeCurrent();
 
 此时再次接口调用 `/say/hello` 测试即可看看到控制台打印出结果，重点观察content字段 : 
 
