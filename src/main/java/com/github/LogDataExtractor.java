@@ -38,10 +38,7 @@ public class LogDataExtractor {
      */
     public static HttpServletRequest getRequest() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            return attributes.getRequest();
-        }
-        return null;
+        return attributes != null ? attributes.getRequest() : null;
     }
 
     /**
@@ -49,10 +46,7 @@ public class LogDataExtractor {
      */
     public static HttpServletResponse getResponse() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            return attributes.getResponse();
-        }
-        return null;
+        return attributes != null ? attributes.getResponse() : null;
     }
 
 

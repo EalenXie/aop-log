@@ -41,7 +41,7 @@ public class LogCollectorExecutor {
      */
     @Async
     public void asyncExecute(Class<? extends LogCollector> clz, LogData logData) {
-        getExecuteLogCollector(clz).collect(logData);
+        execute(clz, logData);
     }
 
     /**
