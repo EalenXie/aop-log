@@ -12,8 +12,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +22,12 @@ import java.util.Map;
 public class LogDataExtractor {
 
     private static final Log log = LogFactory.getLog(LogDataExtractor.class);
+    private static final String AND_REG = "&";
+    private static final String EQUALS_REG = "=";
 
     private LogDataExtractor() {
 
     }
-
-    private static final String AND_REG = "&";
-    private static final String EQUALS_REG = "=";
 
 
     /**
@@ -48,7 +45,6 @@ public class LogDataExtractor {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return attributes != null ? attributes.getResponse() : null;
     }
-
 
     /**
      * 获取请求参数内容
@@ -68,7 +64,7 @@ public class LogDataExtractor {
             if (MediaType.APPLICATION_XML_VALUE.equals(contentType)) {
                 return xmlArgs(target);
             }
-            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(contentType) || MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
+            if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
                 return target;
             }
         }
@@ -129,7 +125,7 @@ public class LogDataExtractor {
         if (request != null) {
             data.setHost(request.getLocalAddr());
             data.setPort(request.getLocalPort());
-            data.setClientIp(getIpAddress(request));
+            data.setClientIp(request.getRemoteAddr());
             data.setReqUrl(request.getRequestURL().toString());
             data.setHttpMethod(request.getMethod());
             Map<String, String> headersMap = new HashMap<>();
@@ -141,35 +137,6 @@ public class LogDataExtractor {
             }
             data.setHeaders(headersMap);
         }
-    }
-
-    /**
-     * 获取用户IP地址
-     */
-    public static String getIpAddress(HttpServletRequest request) {
-        String[] ipHeaders = {"x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR"};
-        String[] localhostIp = {"127.0.0.1", "0:0:0:0:0:0:0:1"};
-        String ip = request.getRemoteAddr();
-        for (String header : ipHeaders) {
-            if (ip != null && ip.length() > 0 && !"unknown".equalsIgnoreCase(ip)) {
-                break;
-            }
-            ip = request.getHeader(header);
-        }
-        for (String local : localhostIp) {
-            if (ip != null && ip.length() > 0 && ip.equals(local)) {
-                try {
-                    ip = InetAddress.getLocalHost().getHostAddress();
-                } catch (UnknownHostException e) {
-                    log.warn("Get host ip exception , UnknownHostException : {}", e);
-                }
-                break;
-            }
-        }
-        if (ip != null && ip.length() > 15 && ip.contains(",")) {
-            ip = ip.substring(0, ip.indexOf(','));
-        }
-        return ip;
     }
 
 }
