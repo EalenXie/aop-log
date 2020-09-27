@@ -258,12 +258,14 @@ public class LogData {
     /**
      * 内容记录记录 正常会在aop中结束释放
      *
-     * @param step 这里可以使用 该方法记录每一个步骤 : 注意 调用该方法时 请注意释放 ; 不用此对象时，请 调用 移除当前线程操作日志对象
+     * @param step 这里可以使用 该方法记录每一个步骤
      */
     public static void step(String step) {
-        LogData data = getCurrent();
-        if (data.getContent() == null) data.setContent("");
-        data.setContent(data.getContent() + step + "\n");
-        setCurrent(data);
+        LogData data = LOG_DATA.get();
+        if (data != null) {
+            if (data.getContent() == null) data.setContent("");
+            data.setContent(data.getContent() + step + "\n");
+            setCurrent(data);
+        }
     }
 }
