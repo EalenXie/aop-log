@@ -11,9 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.UnknownHostException;
+import java.util.*;
 
 /**
  * @author EalenXie create on 2020/8/28 13:36
@@ -125,7 +128,7 @@ public class LogDataExtractor {
         if (request != null) {
             data.setHost(request.getLocalAddr());
             data.setPort(request.getLocalPort());
-            data.setClientIp(request.getRemoteAddr());
+            data.setClientIp(getIpAddress(request));
             data.setReqUrl(request.getRequestURL().toString());
             data.setHttpMethod(request.getMethod());
             Map<String, String> headersMap = new HashMap<>();
@@ -137,6 +140,55 @@ public class LogDataExtractor {
             }
             data.setHeaders(headersMap);
         }
+    }
+
+
+    /**
+     * 获取本机网卡第一个IPv4 地址
+     */
+    public static String getLocalIpAddr0() throws IOException {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface ni = interfaces.nextElement();
+            Enumeration<InetAddress> ipAddrEnum = ni.getInetAddresses();
+            while (ipAddrEnum.hasMoreElements()) {
+                InetAddress addr = ipAddrEnum.nextElement();
+                if (!addr.isLoopbackAddress()) {
+                    String ip = addr.getHostAddress();
+                    if (ip != null && !ip.contains(":")) return ip;
+                }
+            }
+        }
+        throw new UnknownHostException();
+    }
+
+    /**
+     * 获取请求端IP地址
+     */
+    public static String getIpAddress(HttpServletRequest request) {
+        String[] ipHeaders = {"x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR"};
+        String[] localhostIp = {"127.0.0.1", "0:0:0:0:0:0:0:1"};
+        String ip = request.getRemoteAddr();
+        for (String header : ipHeaders) {
+            if (ip != null && ip.length() > 0 && !"unknown".equalsIgnoreCase(ip)) {
+                break;
+            }
+            ip = request.getHeader(header);
+        }
+        for (String local : localhostIp) {
+            if (ip != null && ip.length() > 0 && ip.equals(local)) {
+                try {
+                    ip = getLocalIpAddr0();
+                } catch (IOException e) {
+                    log.warn("Get host ip exception , UnknownHostException : {}", e);
+                }
+                break;
+            }
+        }
+        if (ip != null && ip.length() > 15 && ip.contains(",")) {
+            ip = ip.substring(0, ip.indexOf(','));
+        }
+        return ip;
     }
 
 }

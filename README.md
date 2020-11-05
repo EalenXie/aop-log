@@ -3,7 +3,7 @@ AopLog
 
 #### AopLog是基于SpringAop和ThreadLocal实现的一个对请求方法内容日志的拦截与处理的日志工具包。
 
-![](https://img.shields.io/static/v1?label=release&message=2.1&color=green)
+![](https://img.shields.io/static/v1?label=release&message=2.2&color=green)
 ![](https://img.shields.io/static/v1?label=jar&message=16k&color=green)
 ![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 ![](https://img.shields.io/badge/JDK-1.8+-red.svg)
@@ -26,7 +26,7 @@ AopLog
 <dependency>
     <groupId>com.github.ealenxie</groupId>
     <artifactId>aop-log</artifactId>
-    <version>2.1</version>
+    <version>2.2</version>
 </dependency>
 
 ```
@@ -179,8 +179,6 @@ public class AppController {
 
 ```
 
-注意: 此方法如果不在被`@AopLog`注解的方法的整体调用链路中使用，则当前线程中的ThreadLocal中的`LogData`不会释放，需要手动调用LogData.removeCurrent();
-
 此时再次接口调用 `/say/hello` 测试即可看看到控制台打印出结果，重点观察content字段 : 
 
 ```
@@ -189,3 +187,10 @@ public class AppController {
 ```
 "content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n"
 ```
+
+#### Change Notes:
+
+- 2.2
+    
+    1. LogData.step方法优化，支持模板参数例如 : LogData.step("abc{}efg","-") 等同于 LogData.step("abc-efg")
+    2. 调整了本机Ip的获取方式，不再调用`InetAddress.getLocalHost().getHostAddress()`获取本机IP

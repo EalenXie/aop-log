@@ -256,7 +256,7 @@ public class LogData {
     }
 
     /**
-     * 内容记录记录 正常会在aop中结束释放
+     * 内容记录记录
      *
      * @param step 这里可以使用 该方法记录每一个步骤
      */
@@ -268,4 +268,15 @@ public class LogData {
             setCurrent(data);
         }
     }
+
+    /**
+     * 内容记录步骤记录  例如 step("ABC--{}--EFG ", "D")   ABC--D--EFG
+     *
+     * @param stepTemplate step模板 该方法记录每一个步骤
+     * @param args         模板参数
+     */
+    public static void step(String stepTemplate, Object... args) {
+        step(MessageFormatter.format(stepTemplate, args));
+    }
+
 }
