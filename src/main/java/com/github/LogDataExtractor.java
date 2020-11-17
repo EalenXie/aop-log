@@ -16,7 +16,9 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/8/28 13:36
@@ -61,8 +63,7 @@ public class LogDataExtractor {
         else target = args;
         if (target == null) return null;
         HttpServletRequest request = getRequest();
-        if (request != null && request.getContentType() != null
-                && request.getContentType().length() > 0) {
+        if (request != null && request.getContentType() != null && request.getContentType().length() > 0) {
             String contentType = request.getContentType();
             if (MediaType.APPLICATION_XML_VALUE.equals(contentType)) {
                 return xmlArgs(target);
@@ -78,6 +79,7 @@ public class LogDataExtractor {
      * 获取程序执行结果内容
      */
     public static Object getResult(Object resp) {
+        if (resp == null) return null;
         HttpServletResponse response = getResponse();
         if (response != null && MediaType.APPLICATION_XML_VALUE.equals(response.getContentType()))
             return xmlArgs(resp);

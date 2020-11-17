@@ -39,32 +39,11 @@ public class AopLogProcessor {
         AopLog aopLog = signature.getMethod().getAnnotation(AopLog.class);
         if (aopLog == null) aopLog = point.getTarget().getClass().getAnnotation(AopLog.class);
         if (aopLog != null) {
-            if (!aopLog.logOnErr()) {
-                logProcessBefore(aopLog, data, point);
-            }
             return proceed(aopLog, data, point);
         }
         return point.proceed();
     }
 
-
-    /**
-     * 执行前记录 app应用信息 http等信息
-     *
-     * @param aopLog 注解对象
-     * @param data   日志数据
-     * @param point  切入point对象
-     */
-    public void logProcessBefore(AopLog aopLog, LogData data, ProceedingJoinPoint point) {
-        MethodSignature signature = (MethodSignature) point.getSignature();
-        data.setAppName(appName);
-        data.setType(aopLog.type());
-        data.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
-        LogDataExtractor.logHttpRequest(data, aopLog.headers());
-        if (aopLog.args()) {
-            data.setArgs(LogDataExtractor.getArgs(signature.getParameterNames(), point.getArgs()));
-        }
-    }
 
     /**
      * 方法执行处理记录
@@ -76,18 +55,13 @@ public class AopLogProcessor {
      * @throws Throwable Exceptions in AOP should be thrown out and left to the specific business to handle
      */
     private Object proceed(AopLog aopLog, LogData data, ProceedingJoinPoint point) throws Throwable {
+        Object result = null;
+        boolean success = false;
         try {
-            Object result = point.proceed();
-            if (aopLog.respBody()) {
-                data.setRespBody(LogDataExtractor.getResult(result));
-            }
-            data.setSuccess(true);
+            result = point.proceed();
+            success = true;
             return result;
         } catch (Throwable throwable) {
-            if (aopLog.logOnErr()) {
-                logProcessBefore(aopLog, data, point);
-            }
-            data.setSuccess(false);
             if (aopLog.stackTraceOnErr()) {
                 try (StringWriter sw = new StringWriter(); PrintWriter writer = new PrintWriter(sw, true)) {
                     throwable.printStackTrace(writer);
@@ -96,13 +70,25 @@ public class AopLogProcessor {
             }
             throw throwable;
         } finally {
-            data.toCostTime();
-            LogData.setCurrent(data);
             if (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
+                data.toCostTime();
+                MethodSignature signature = (MethodSignature) point.getSignature();
+                data.setAppName(appName);
+                data.setType(aopLog.type());
+                data.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
+                LogDataExtractor.logHttpRequest(data, aopLog.headers());
+                if (aopLog.args()) {
+                    data.setArgs(LogDataExtractor.getArgs(signature.getParameterNames(), point.getArgs()));
+                }
+                if (aopLog.respBody()) {
+                    data.setRespBody(LogDataExtractor.getResult(result));
+                }
+                data.setSuccess(success);
+                LogData.setCurrent(data);
                 if (aopLog.asyncMode()) {
-                    logCollectorExecutor.asyncExecute(aopLog.collector(), data);
+                    logCollectorExecutor.asyncExecute(aopLog.collector(), LogData.getCurrent());
                 } else {
-                    logCollectorExecutor.execute(aopLog.collector(), data);
+                    logCollectorExecutor.execute(aopLog.collector(), LogData.getCurrent());
                 }
             }
         }
