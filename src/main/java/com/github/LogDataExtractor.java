@@ -128,7 +128,7 @@ public class LogDataExtractor {
     public static void logHttpRequest(LogData data, String[] headers) {
         HttpServletRequest request = LogDataExtractor.getRequest();
         if (request != null) {
-            data.setHost(request.getLocalAddr());
+            data.setHost(parseIfLocalIpAddr(request.getLocalAddr()));
             data.setPort(request.getLocalPort());
             data.setClientIp(getIpAddress(request));
             data.setReqUrl(request.getRequestURL().toString());
@@ -169,7 +169,6 @@ public class LogDataExtractor {
      */
     public static String getIpAddress(HttpServletRequest request) {
         String[] ipHeaders = {"x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR"};
-        String[] localhostIp = {"127.0.0.1", "0:0:0:0:0:0:0:1"};
         String ip = request.getRemoteAddr();
         for (String header : ipHeaders) {
             if (ip != null && ip.length() > 0 && !"unknown".equalsIgnoreCase(ip)) {
@@ -177,18 +176,25 @@ public class LogDataExtractor {
             }
             ip = request.getHeader(header);
         }
-        for (String local : localhostIp) {
-            if (ip != null && ip.length() > 0 && ip.equals(local)) {
-                try {
-                    ip = getLocalIpAddr0();
-                } catch (IOException e) {
-                    log.warn("Get host ip exception , UnknownHostException : {}", e);
-                }
-                break;
-            }
-        }
+        ip = parseIfLocalIpAddr(ip);
         if (ip != null && ip.length() > 15 && ip.contains(",")) {
             ip = ip.substring(0, ip.indexOf(','));
+        }
+        return ip;
+    }
+
+    public static String parseIfLocalIpAddr(String ip) {
+        String[] localhostIp = {"127.0.0.1", "0:0:0:0:0:0:0:1"};
+        if (ip != null && ip.length() > 0) {
+            for (String local : localhostIp) {
+                if (ip.equals(local)) {
+                    try {
+                        return getLocalIpAddr0();
+                    } catch (IOException e) {
+                        log.warn("Get host ip exception , UnknownHostException : {}", e);
+                    }
+                }
+            }
         }
         return ip;
     }

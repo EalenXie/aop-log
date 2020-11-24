@@ -4,6 +4,7 @@ import com.github.collector.LogCollectorExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.PrintWriter;
@@ -23,7 +24,13 @@ public class AopLogProcessor {
 
     public AopLogProcessor(@Autowired LogCollectorExecutor logCollectorExecutor) {
         this.logCollectorExecutor = logCollectorExecutor;
-        this.appName = logCollectorExecutor.getApplicationContext().getId();
+        Environment environment = logCollectorExecutor.getApplicationContext().getEnvironment();
+        String name = environment.getProperty("spring.application.name");
+        if (name != null && name.length() > 0) {
+            this.appName = name;
+        } else {
+            this.appName = logCollectorExecutor.getApplicationContext().getId();
+        }
     }
 
     /**
