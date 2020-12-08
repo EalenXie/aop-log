@@ -183,11 +183,18 @@ public class LogData {
     }
 
     public Date getLogDate() {
-        return logDate;
+        if (logDate == null) {
+            return null;
+        }
+        return (Date) logDate.clone();
     }
 
     public void setLogDate(Date logDate) {
-        this.logDate = logDate;
+        if (logDate == null) {
+            this.logDate = null;
+        } else {
+            this.logDate = (Date) logDate.clone();
+        }
     }
 
     public long getCostTime() {
@@ -263,7 +270,9 @@ public class LogData {
     public static void step(String step) {
         LogData data = LOG_DATA.get();
         if (data != null) {
-            if (data.getContent() == null) data.setContent("");
+            if (data.getContent() == null) {
+                data.setContent("");
+            }
             data.setContent(data.getContent() + step + "\n");
             setCurrent(data);
         }

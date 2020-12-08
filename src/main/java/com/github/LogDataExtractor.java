@@ -24,11 +24,12 @@ import java.util.Map;
  * @author EalenXie create on 2020/8/28 13:36
  * LogData Extractor 数据抽取器
  */
-public class LogDataExtractor {
+public final class LogDataExtractor {
 
     private static final Log log = LogFactory.getLog(LogDataExtractor.class);
     private static final String AND_REG = "&";
     private static final String EQUALS_REG = "=";
+    private static final String COMMA = ",";
 
     private LogDataExtractor() {
 
@@ -59,9 +60,14 @@ public class LogDataExtractor {
      */
     public static Object getArgs(String[] parameterNames, Object[] args) {
         Object target;
-        if (args.length == 1) target = args[0];
-        else target = args;
-        if (target == null) return null;
+        if (args.length == 1) {
+            target = args[0];
+        } else {
+            target = args;
+        }
+        if (target == null) {
+            return null;
+        }
         HttpServletRequest request = getRequest();
         if (request != null && request.getContentType() != null && request.getContentType().length() > 0) {
             String contentType = request.getContentType();
@@ -79,11 +85,15 @@ public class LogDataExtractor {
      * 获取程序执行结果内容
      */
     public static Object getResult(Object resp) {
-        if (resp == null) return null;
+        if (resp == null) {
+            return null;
+        }
         HttpServletResponse response = getResponse();
-        if (response != null && MediaType.APPLICATION_XML_VALUE.equals(response.getContentType()))
+        if (response != null && MediaType.APPLICATION_XML_VALUE.equals(response.getContentType())) {
             return xmlArgs(resp);
-        else return resp;
+        } else {
+            return resp;
+        }
     }
 
     /**
@@ -93,7 +103,9 @@ public class LogDataExtractor {
      * @param args           参数值
      */
     public static Object appletArgs(String[] parameterNames, Object[] args) {
-        if (parameterNames == null || parameterNames.length == 0 || args == null || args.length == 0) return null;
+        if (parameterNames == null || parameterNames.length == 0 || args == null || args.length == 0) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parameterNames.length; i++) {
             sb.append(parameterNames[i]).append(EQUALS_REG).append(args[i].toString()).append(AND_REG);
@@ -133,7 +145,7 @@ public class LogDataExtractor {
             data.setClientIp(getIpAddress(request));
             data.setReqUrl(request.getRequestURL().toString());
             data.setHttpMethod(request.getMethod());
-            Map<String, String> headersMap = new HashMap<>();
+            Map<String, String> headersMap = new HashMap<>(8);
             for (String header : headers) {
                 String value = request.getHeader(header);
                 if (value != null && value.length() > 0) {
@@ -157,7 +169,9 @@ public class LogDataExtractor {
                 InetAddress addr = ipAddrEnum.nextElement();
                 if (!addr.isLoopbackAddress()) {
                     String ip = addr.getHostAddress();
-                    if (ip != null && !ip.contains(":")) return ip;
+                    if (ip != null && !ip.contains(":")) {
+                        return ip;
+                    }
                 }
             }
         }
@@ -177,7 +191,8 @@ public class LogDataExtractor {
             ip = request.getHeader(header);
         }
         ip = parseIfLocalIpAddr(ip);
-        if (ip != null && ip.length() > 15 && ip.contains(",")) {
+        final int ipLength = 15;
+        if (ip != null && ip.length() > ipLength && ip.contains(COMMA)) {
             ip = ip.substring(0, ip.indexOf(','));
         }
         return ip;

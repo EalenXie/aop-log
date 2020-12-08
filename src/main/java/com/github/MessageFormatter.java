@@ -4,7 +4,7 @@ package com.github;
  * @author EalenXie create on 2020/10/29 9:44
  * 例如 format("ABC--{}--EFG ", "D")    ABC--D--EFG
  */
-public class MessageFormatter {
+public final class MessageFormatter {
 
     private static final String DELIMITER = "{}";
 
@@ -16,20 +16,25 @@ public class MessageFormatter {
 
     }
 
-
     public static String format(String template, Object... args) {
         return format(DELIMITER, ESCAPE_CHAR, template, args);
     }
 
     public static String format(String delimiter, String escape, String template, Object... args) {
-        if (args == null || args.length <= 0) return template;
-        if (template == null || template.isEmpty()) return EMPTY;
+        if (args == null || args.length <= 0) {
+            return template;
+        }
+        if (template == null || template.isEmpty()) {
+            return EMPTY;
+        }
         StringBuilder buf = new StringBuilder(template);
         int start = 0;
         for (Object arg : args) {
             int result = escapeReplace(delimiter, escape, buf, arg, start);
             start = result;
-            if (result == -1) break;
+            if (result == -1) {
+                break;
+            }
         }
         return buf.toString();
     }
@@ -43,7 +48,9 @@ public class MessageFormatter {
                 int di = deIndex + delimiter.length();
                 buf.replace(deIndex, di, arg.toString());
                 return di;
-            } else return -1;
+            } else {
+                return -1;
+            }
         } else {
             if (esIndex > deIndex) {
                 int di = deIndex + delimiter.length();

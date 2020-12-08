@@ -44,7 +44,9 @@ public class AopLogProcessor {
     public Object proceed(LogData data, ProceedingJoinPoint point) throws Throwable {
         MethodSignature signature = (MethodSignature) point.getSignature();
         AopLog aopLog = signature.getMethod().getAnnotation(AopLog.class);
-        if (aopLog == null) aopLog = point.getTarget().getClass().getAnnotation(AopLog.class);
+        if (aopLog == null) {
+            aopLog = point.getTarget().getClass().getAnnotation(AopLog.class);
+        }
         if (aopLog != null) {
             return proceed(aopLog, data, point);
         }
@@ -77,7 +79,7 @@ public class AopLogProcessor {
             }
             throw throwable;
         } finally {
-            if (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
+            if  (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
                 data.toCostTime();
                 MethodSignature signature = (MethodSignature) point.getSignature();
                 data.setAppName(appName);
