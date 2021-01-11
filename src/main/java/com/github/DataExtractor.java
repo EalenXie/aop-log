@@ -22,22 +22,23 @@ import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/8/28 13:36
- * LogData Extractor 数据抽取器
+ * Data Extractor 数据抽取器
  */
-public final class LogDataExtractor {
+public class DataExtractor {
 
-    private static final Log log = LogFactory.getLog(LogDataExtractor.class);
+    private static final Log log = LogFactory.getLog(DataExtractor.class);
     private static final String AND_REG = "&";
     private static final String EQUALS_REG = "=";
     private static final String COMMA = ",";
 
-    private LogDataExtractor() {
+    private DataExtractor() {
 
     }
 
-
     /**
      * 获取HttpServletRequest对象
+     *
+     * @return HttpServletRequest
      */
     public static HttpServletRequest getRequest() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -46,6 +47,8 @@ public final class LogDataExtractor {
 
     /**
      * 获取HttpServletResponse对象
+     *
+     * @return HttpServletResponse
      */
     public static HttpServletResponse getResponse() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -57,6 +60,7 @@ public final class LogDataExtractor {
      *
      * @param parameterNames 参数名称列表
      * @param args           参数列表
+     * @return Gets the request parameter content
      */
     public static Object getArgs(String[] parameterNames, Object[] args) {
         Object target;
@@ -81,8 +85,12 @@ public final class LogDataExtractor {
         return appletArgs(parameterNames, args);
     }
 
+
     /**
      * 获取程序执行结果内容
+     *
+     * @param resp 响应对象
+     * @return Gets the contents of the program execution results
      */
     public static Object getResult(Object resp) {
         if (resp == null) {
@@ -101,6 +109,7 @@ public final class LogDataExtractor {
      *
      * @param parameterNames 参数名
      * @param args           参数值
+     * @return Get program parameters
      */
     public static Object appletArgs(String[] parameterNames, Object[] args) {
         if (parameterNames == null || parameterNames.length == 0 || args == null || args.length == 0) {
@@ -116,8 +125,12 @@ public final class LogDataExtractor {
         return sb.toString();
     }
 
+
     /**
      * 解析XML 数据
+     *
+     * @param pointArgs 切点参数
+     * @return Parsing XML data
      */
     public static Object xmlArgs(Object pointArgs) {
         try {
@@ -135,10 +148,13 @@ public final class LogDataExtractor {
 
 
     /**
-     * 获取 HttpServletRequest 对象信息
+     * 抽取 HttpServletRequest 对象信息
+     *
+     * @param data    logData Object
+     * @param headers headers
      */
     public static void logHttpRequest(LogData data, String[] headers) {
-        HttpServletRequest request = LogDataExtractor.getRequest();
+        HttpServletRequest request = getRequest();
         if (request != null) {
             data.setHost(parseIfLocalIpAddr(request.getLocalAddr()));
             data.setPort(request.getLocalPort());
@@ -158,7 +174,10 @@ public final class LogDataExtractor {
 
 
     /**
-     * 获取本机网卡第一个IPv4 地址
+     * 获取本机网卡第一个IPv4
+     *
+     * @return Get the first IPv4 of the native network card
+     * @throws IOException Resolving native Ip may throw UnknownHostException
      */
     public static String getLocalIpAddr0() throws IOException {
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -180,6 +199,9 @@ public final class LogDataExtractor {
 
     /**
      * 获取请求端IP地址
+     *
+     * @param request HttpServletRequest
+     * @return Gets the IP address of the requesting side
      */
     public static String getIpAddress(HttpServletRequest request) {
         String[] ipHeaders = {"x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR"};
@@ -198,6 +220,12 @@ public final class LogDataExtractor {
         return ip;
     }
 
+    /**
+     * 如果是本机地址,则解析获取本机Ip
+     *
+     * @param ip ip地址
+     * @return If it is a native address, it parses to get the native Ip
+     */
     public static String parseIfLocalIpAddr(String ip) {
         String[] localhostIp = {"127.0.0.1", "0:0:0:0:0:0:0:1"};
         if (ip != null && ip.length() > 0) {

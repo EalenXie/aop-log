@@ -14,9 +14,13 @@ public class LogData {
     }
 
     /**
-     * 请务必注意该对象 使用->释放 原则
+     * 线程LogData对象
      */
     private static final ThreadLocal<LogData> LOG_DATA = new ThreadLocal<>();
+    /**
+     * 线程StringBuilder对象 主要用于追加字段到最终的content
+     */
+    private static final ThreadLocal<StringBuilder> CONTENT_BUILDER = new ThreadLocal<>();
     /**
      * 应用名
      */
@@ -183,16 +187,14 @@ public class LogData {
     }
 
     public Date getLogDate() {
-        if (logDate == null) {
-            return null;
+        if (logDate != null) {
+            return (Date) logDate.clone();
         }
-        return (Date) logDate.clone();
+        return null;
     }
 
     public void setLogDate(Date logDate) {
-        if (logDate == null) {
-            this.logDate = null;
-        } else {
+        if (logDate != null) {
             this.logDate = (Date) logDate.clone();
         }
     }
@@ -230,35 +232,40 @@ public class LogData {
     }
 
     /**
-     * 耗时计算
-     */
-    public void toCostTime() {
-        LogData data = LogData.getCurrent();
-        data.setCostTime((System.currentTimeMillis() - logDate.getTime()));
-        LogData.setCurrent(data);
-    }
-
-    /**
      * 获取当前线程中的操作日志对象
+     *
+     * @return Gets the LogData in the current thread
      */
-    public static LogData getCurrent() {
-        LogData data = LOG_DATA.get();
-        if (data == null) {
-            data = new LogData();
-            data.setLogDate(new Date());
-            LOG_DATA.set(data);
+    protected static LogData getCurrent() {
+        if (LOG_DATA.get() == null) {
+            LogData logData = new LogData();
+            logData.setLogDate(new Date());
+            StringBuilder sb = CONTENT_BUILDER.get();
+            if (sb == null) {
+                CONTENT_BUILDER.set(new StringBuilder());
+            }
+            LOG_DATA.set(logData);
         }
         return LOG_DATA.get();
     }
 
-    public static void setCurrent(LogData data) {
-        LOG_DATA.set(data);
+    /**
+     * 设置当前线程中的操作日志对象
+     *
+     * @param logData AopLog日志对象
+     */
+    protected static void setCurrent(LogData logData) {
+        if (CONTENT_BUILDER.get() != null) {
+            logData.setContent(CONTENT_BUILDER.get().toString());
+        }
+        LOG_DATA.set(logData);
     }
 
     /**
-     * 移除当前线程操作日志对象
+     * 移除当前线程AopLog日志对象
      */
     public static void removeCurrent() {
+        CONTENT_BUILDER.remove();
         LOG_DATA.remove();
     }
 
@@ -268,13 +275,10 @@ public class LogData {
      * @param step 这里可以使用 该方法记录每一个步骤
      */
     public static void step(String step) {
-        LogData data = LOG_DATA.get();
-        if (data != null) {
-            if (data.getContent() == null) {
-                data.setContent("");
-            }
-            data.setContent(data.getContent() + step + "\n");
-            setCurrent(data);
+        StringBuilder sb = CONTENT_BUILDER.get();
+        if (sb != null) {
+            sb.append(step).append("\n");
+            CONTENT_BUILDER.set(sb);
         }
     }
 

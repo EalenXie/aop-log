@@ -3,15 +3,15 @@ AopLog
 
 #### AopLog是基于SpringAop和ThreadLocal实现的一个对请求方法内容日志的拦截与处理的日志工具包。
 
-![](https://img.shields.io/static/v1?label=release&message=2.2&color=green)
-![](https://img.shields.io/static/v1?label=jar&message=16k&color=green)
+![](https://img.shields.io/static/v1?label=release&message=2.3&color=green)
+![](https://img.shields.io/static/v1?label=jar&message=24k&color=green)
 ![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 ![](https://img.shields.io/badge/JDK-1.8+-red.svg)
 
 设计目的和场景 : 
 
 1. 使用Spring Aop拦截参数日志目前大部分做法都基本上大同小异,不想日后每个项目工程都写一份这样的Aop拦截处理日志的代码,甚至代码侵入。
-2. 我想知道一些相对重要的请求方法的请求参数,响应参数,请求头,以及内部耗时,方法是成功还是失败等等信息。发生错误时我也不知道执行到哪一步发生了异常，是不是某个参数导致出的逻辑问题。
+2. 重要的业务接口埋点,我想知道一些相对重要的请求方法的请求参数,响应参数,请求头,以及内部耗时,方法是成功还是失败等等信息。发生错误时我也不知道执行到哪一步发生了异常，是不是某个参数导致出的逻辑问题。
 3. 普通的log.info或warn信息没有所属请求的上下关系,并不方便查看和分析。
 4. 正式环境中,我并不想打印太多无意义的info日志(有些只是为了排查问题打印的日志,程序正常运行时其实毫无意义)，只希望在发生异常时记录日志或者只希望每次请求只记录一条次关键的请求信息。
 5. 日志的收集,我希望将这些请求的日志记录下来，记录的实现方式我自己决定，比如正常的日志打印，常见的日志写入数据库，日志写入到文件，日志入队列等等。
@@ -26,13 +26,13 @@ AopLog
 <dependency>
     <groupId>com.github.ealenxie</groupId>
     <artifactId>aop-log</artifactId>
-    <version>2.2</version>
+    <version>2.3</version>
 </dependency>
 
 ```
 #### 或者通过gradle引入
 ```gradle
-compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.1'
+compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.3'
 ```
 
 
@@ -45,15 +45,7 @@ compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.1'
 
 ```java
 
-import com.github.AopLog;
-import name.ealen.infra.base.resp.RespBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-/**
- * @author EalenXie create on 2020/6/22 14:28
- */
-@AopLog(type = "测试",stackTraceOnErr = true)
+@AopLog(type = "测试接口",stackTraceOnErr = true)
 @RestController
 public class AppController {
 
@@ -190,7 +182,4 @@ public class AppController {
 
 #### Change Notes:
 
-- 2.2
-    
-    1. LogData.step方法优化，支持模板参数例如 : LogData.step("abc{}efg","-") 等同于 LogData.step("abc-efg")
-    2. 调整了本机Ip的获取方式，不再调用`InetAddress.getLocalHost().getHostAddress()`获取本机IP
+有关更改的详细信息，请参阅[发布说明](https://github.com/EalenXie/aop-log/releases)。

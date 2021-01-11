@@ -4,10 +4,11 @@ import com.github.LogData;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,17 +17,19 @@ import java.util.Map;
  * Log collection executor
  */
 @Component
+@EnableAsync
+@ComponentScan
 public class LogCollectorExecutor {
 
-    @Resource
-    private LogCollector collector;
+    private LogCollector logCollector;
 
     private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
 
     private ApplicationContext applicationContext;
 
-    public LogCollectorExecutor(@Autowired ApplicationContext applicationContext) {
+    public LogCollectorExecutor(@Autowired ApplicationContext applicationContext, @Autowired LogCollector logCollector) {
         this.applicationContext = applicationContext;
+        this.logCollector = logCollector;
     }
 
     public ApplicationContext getApplicationContext() {
@@ -39,7 +42,7 @@ public class LogCollectorExecutor {
      * @param clz     日志收集器Class对象
      * @param logData 日志数据
      */
-    @Async
+    @Async("logCollectorAsyncExecutor")
     public void asyncExecute(Class<? extends LogCollector> clz, LogData logData) {
         execute(clz, logData);
     }
@@ -61,7 +64,7 @@ public class LogCollectorExecutor {
      * @return 获取指定的日志收集器
      */
     private LogCollector getExecuteLogCollector(Class<? extends LogCollector> clz) {
-        if (clz != NothingCollector.class) {
+        if (clz != null && clz != NothingCollector.class) {
             LogCollector c;
             try {
                 c = applicationContext.getBean(clz);
@@ -74,7 +77,7 @@ public class LogCollectorExecutor {
             }
             return c;
         } else {
-            return collector;
+            return logCollector;
         }
     }
 

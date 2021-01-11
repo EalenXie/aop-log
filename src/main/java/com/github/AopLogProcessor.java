@@ -4,6 +4,7 @@ import com.github.collector.LogCollectorExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -24,13 +25,32 @@ public class AopLogProcessor {
 
     public AopLogProcessor(@Autowired LogCollectorExecutor logCollectorExecutor) {
         this.logCollectorExecutor = logCollectorExecutor;
-        Environment environment = logCollectorExecutor.getApplicationContext().getEnvironment();
+        this.appName = getAppName(logCollectorExecutor.getApplicationContext());
+    }
+
+    /**
+     * 设置应用名称
+     */
+    private static String getAppName(ApplicationContext applicationContext) {
+        Environment environment = applicationContext.getEnvironment();
         String name = environment.getProperty("spring.application.name");
-        if (name != null && name.length() > 0) {
-            this.appName = name;
-        } else {
-            this.appName = logCollectorExecutor.getApplicationContext().getId();
+        if (name != null) {
+            return name;
         }
+        if (applicationContext.getId() != null) {
+            return applicationContext.getId();
+        }
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            if ("main".equals(stackTraceElement.getMethodName())) {
+                return stackTraceElement.getFileName();
+            }
+        }
+        return applicationContext.getApplicationName();
+    }
+
+    public String getAppName() {
+        return appName;
     }
 
     /**
@@ -79,18 +99,18 @@ public class AopLogProcessor {
             }
             throw throwable;
         } finally {
-            if  (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
-                data.toCostTime();
+            if (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
                 MethodSignature signature = (MethodSignature) point.getSignature();
                 data.setAppName(appName);
+                data.setCostTime(System.currentTimeMillis() - data.getLogDate().getTime());
                 data.setType(aopLog.type());
                 data.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
-                LogDataExtractor.logHttpRequest(data, aopLog.headers());
+                DataExtractor.logHttpRequest(data, aopLog.headers());
                 if (aopLog.args()) {
-                    data.setArgs(LogDataExtractor.getArgs(signature.getParameterNames(), point.getArgs()));
+                    data.setArgs(DataExtractor.getArgs(signature.getParameterNames(), point.getArgs()));
                 }
                 if (aopLog.respBody()) {
-                    data.setRespBody(LogDataExtractor.getResult(result));
+                    data.setRespBody(DataExtractor.getResult(result));
                 }
                 data.setSuccess(success);
                 LogData.setCurrent(data);
