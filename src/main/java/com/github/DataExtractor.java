@@ -1,7 +1,7 @@
 package com.github;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class DataExtractor {
 
-    private static final Log log = LogFactory.getLog(DataExtractor.class);
+    private static final Logger log = LoggerFactory.getLogger(DataExtractor.class);
     private static final String AND_REG = "&";
     private static final String EQUALS_REG = "=";
     private static final String COMMA = ",";
@@ -141,7 +141,7 @@ public class DataExtractor {
             marshaller.marshal(pointArgs, writer);
             return writer.toString().replace("standalone=\"yes\"", "");
         } catch (JAXBException e) {
-            log.warn("parse xml data exception : {}", e.getLinkedException());
+            log.warn("parse xml data exception", e.getLinkedException());
         }
         return pointArgs;
     }
@@ -234,7 +234,7 @@ public class DataExtractor {
                     try {
                         return getLocalIpAddr0();
                     } catch (IOException e) {
-                        log.warn("Get host ip exception , UnknownHostException : {}", e);
+                        log.warn("Get host ip exception , UnknownHostException : ", e);
                     }
                 }
             }
