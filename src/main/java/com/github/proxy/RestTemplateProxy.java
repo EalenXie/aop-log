@@ -167,7 +167,7 @@ public class RestTemplateProxy {
         } finally {
             RestTemplateReqInfo info = new RestTemplateReqInfo();
             info.setAppName(getAppName());
-            info.setHost(DataExtractor.parseIfLocalIpAddr(url.getHost()));
+            info.setHost(url.getHost());
             info.setPort(url.getPort());
             info.setUrl(url.toString());
             info.setMethod(method.name());
