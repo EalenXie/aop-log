@@ -3,7 +3,7 @@ AopLog
 
 #### AopLog是基于SpringAop和ThreadLocal实现的一个对请求方法内容日志的拦截与处理的日志工具包。
 
-![](https://img.shields.io/static/v1?label=release&message=2.3&color=green)
+![](https://img.shields.io/static/v1?label=release&message=2.4&color=green)
 ![](https://img.shields.io/static/v1?label=jar&message=24k&color=green)
 ![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 ![](https://img.shields.io/badge/JDK-1.8+-red.svg)
@@ -26,13 +26,13 @@ AopLog
 <dependency>
     <groupId>com.github.ealenxie</groupId>
     <artifactId>aop-log</artifactId>
-    <version>2.3</version>
+    <version>2.4</version>
 </dependency>
 
 ```
 #### 或者通过gradle引入
 ```gradle
-compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.3'
+compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.4'
 ```
 
 

@@ -6,7 +6,7 @@
     <groupId>com.github.ealenxie</groupId>
     <artifactId>aop-log</artifactId>
     <packaging>jar</packaging>
-    <version>2.3</version>
+    <version>2.4</version>
     <name>aop-log</name>
     <description>A logging collection tool based on Spring AOP and ThreadLocal implementations</description>
     <url>https://github.com/EalenXie/aop-log</url>
