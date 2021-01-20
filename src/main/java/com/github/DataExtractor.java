@@ -133,8 +133,8 @@ public class DataExtractor {
             Marshaller marshaller = getMarshaller(pointArgs.getClass());
             if (marshaller != null) {
                 marshaller.marshal(pointArgs, writer);
+                return writer.toString().replace("standalone=\"yes\"", "");
             }
-            return writer.toString().replace("standalone=\"yes\"", "");
         } catch (JAXBException e) {
             log.warn("parse xml data exception", e.getLinkedException());
         } catch (IOException e) {
