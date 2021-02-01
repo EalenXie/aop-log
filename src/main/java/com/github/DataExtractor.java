@@ -69,7 +69,7 @@ public class DataExtractor {
             return null;
         }
         HttpServletRequest request = getRequest();
-        if (request != null && request.getContentType() != null && request.getContentType().length() > 0) {
+        if (request != null && request.getContentType() != null) {
             String contentType = request.getContentType();
             if (MediaType.APPLICATION_XML_VALUE.equals(contentType)) {
                 return xmlArgs(target);
