@@ -65,7 +65,6 @@ public class RestTemplateProxy {
         return getForEntity(url, responseType, uriVariables).getBody();
     }
 
-
     public <T> T getForObject(String url, Class<T> responseType, Object... uriVariables) {
         return getForEntity(url, responseType, uriVariables).getBody();
     }
@@ -78,11 +77,9 @@ public class RestTemplateProxy {
         return exchange(url, HttpMethod.GET, null, responseType, uriVariables);
     }
 
-
     public <T> T postForObject(String url, Object request, Class<T> responseType, Map<String, ?> uriVariables) {
         return postForEntity(url, request, responseType, uriVariables).getBody();
     }
-
 
     public <T> T postForObject(String url, Object request, Class<T> responseType, Object... uriVariables) {
         return postForEntity(url, request, responseType, uriVariables).getBody();
@@ -182,7 +179,6 @@ public class RestTemplateProxy {
         }
         return responseEntity;
     }
-
 
     public Object extractData(Object body, MediaType mediaType) {
         if (body != null && MediaType.APPLICATION_XML == mediaType) {

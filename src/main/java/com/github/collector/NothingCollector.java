@@ -10,6 +10,6 @@ import com.github.LogData;
 public class NothingCollector implements LogCollector {
     @Override
     public void collect(LogData data) {
-        //this is a empty collector will do nothing
+        // This is an empty collector will do nothing
     }
 }
