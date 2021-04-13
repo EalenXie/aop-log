@@ -21,9 +21,9 @@ import java.util.Map;
  */
 public class RestTemplateProxy {
 
-    private RestTemplate restTemplate;
-    private UriTemplateHandler uriTemplateHandler = initUriTemplateHandler();
-    private RestTemplateCollector restTemplateCollector;
+    private final RestTemplate restTemplate;
+    private final UriTemplateHandler uriTemplateHandler = initUriTemplateHandler();
+    private final RestTemplateCollector restTemplateCollector;
     private String appName;
 
     public void setAppName(String appName) {
@@ -38,16 +38,8 @@ public class RestTemplateProxy {
         return this.restTemplate;
     }
 
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
-
-    public RestTemplateProxy() {
-        restTemplate = new RestTemplate();
-    }
-
-    public RestTemplateProxy(ClientHttpRequestFactory factory) {
-        restTemplate = new RestTemplate(factory);
+    public RestTemplateProxy(ClientHttpRequestFactory factory, RestTemplateCollector restTemplateCollector) {
+        this(new RestTemplate(factory), restTemplateCollector);
     }
 
     public RestTemplateProxy(RestTemplate restTemplate, RestTemplateCollector restTemplateCollector) {
@@ -162,7 +154,7 @@ public class RestTemplateProxy {
             desc = e.getMessage();
             throw e;
         } finally {
-            RestTemplateReqInfo info = new RestTemplateReqInfo();
+            ReqInfo info = new ReqInfo();
             info.setAppName(getAppName());
             info.setHost(url.getHost());
             info.setPort(url.getPort());

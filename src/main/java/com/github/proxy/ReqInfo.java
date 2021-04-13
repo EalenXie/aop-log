@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * @author EalenXie create on 2021/1/4 11:56
  */
-public class RestTemplateReqInfo {
+public class ReqInfo {
     /**
      * 应用名称
      */

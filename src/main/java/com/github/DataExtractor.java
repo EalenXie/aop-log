@@ -25,7 +25,7 @@ public class DataExtractor {
     private static final Logger log = LoggerFactory.getLogger(DataExtractor.class);
     private static final String AND_REG = "&";
     private static final String EQUALS_REG = "=";
-    private static Map<Class<?>, Marshaller> marshallerMap = new HashMap<>();
+    private static final Map<Class<?>, Marshaller> marshallerMap = new HashMap<>();
 
     private DataExtractor() {
 

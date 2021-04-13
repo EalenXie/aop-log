@@ -25,13 +25,13 @@ public class AopLogProcessor {
 
     public AopLogProcessor(@Autowired LogCollectorExecutor logCollectorExecutor) {
         this.logCollectorExecutor = logCollectorExecutor;
-        this.appName = getAppName(logCollectorExecutor.getApplicationContext());
+        this.appName = getAppNameByApplicationContext(logCollectorExecutor.getApplicationContext());
     }
 
     /**
      * 设置应用名称
      */
-    private static String getAppName(ApplicationContext applicationContext) {
+    private static String getAppNameByApplicationContext(ApplicationContext applicationContext) {
         Environment environment = applicationContext.getEnvironment();
         String name = environment.getProperty("spring.application.name");
         if (name != null) {
@@ -94,12 +94,12 @@ public class AopLogProcessor {
             if (aopLog.stackTraceOnErr()) {
                 try (StringWriter sw = new StringWriter(); PrintWriter writer = new PrintWriter(sw, true)) {
                     throwable.printStackTrace(writer);
-                    LogData.step("Fail : \n" + sw.toString());
+                    LogData.step("Fail : \n" + sw);
                 }
             }
             throw throwable;
         } finally {
-            if (!aopLog.logOnErr() || (aopLog.logOnErr() && !data.isSuccess())) {
+            if (!aopLog.logOnErr() || !data.isSuccess()) {
                 MethodSignature signature = (MethodSignature) point.getSignature();
                 data.setAppName(appName);
                 data.setCostTime(System.currentTimeMillis() - data.getLogDate().getTime());

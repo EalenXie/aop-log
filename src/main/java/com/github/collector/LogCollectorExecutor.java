@@ -21,11 +21,11 @@ import java.util.Map;
 @ComponentScan
 public class LogCollectorExecutor {
 
-    private LogCollector logCollector;
+    private final LogCollector logCollector;
 
-    private Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
+    private final Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
 
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
     public LogCollectorExecutor(@Autowired ApplicationContext applicationContext, @Autowired LogCollector logCollector) {
         this.applicationContext = applicationContext;
