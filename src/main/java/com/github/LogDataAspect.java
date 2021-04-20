@@ -26,7 +26,7 @@ public class LogDataAspect {
     /**
      * 将会切 被AopLog注解标记的方法
      */
-    @Pointcut("@annotation(AopLog) || @within(AopLog)")
+    @Pointcut("@annotation(AopLog) || @within(AopLog)|| execution(* com.github.collector.*(..))")
     public void aopLogPointCut() {
         //ig
     }

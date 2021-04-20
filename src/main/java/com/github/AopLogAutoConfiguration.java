@@ -39,14 +39,14 @@ public class AopLogAutoConfiguration {
      * @return The asynchronous collector thread pool is configured by default
      */
     @Bean
-    @ConditionalOnMissingBean(name = "logCollectorAsyncExecutor")
+    @ConditionalOnMissingBean(name = "collectorAsyncExecutor")
     public Executor logCollectorAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(256);
-        executor.setThreadNamePrefix("logCollectorAsyncExecutor-");
-        executor.setRejectedExecutionHandler((r, exec) -> log.error("LogCollectorAsyncExecutor thread queue is full,activeCount:{},Subsequent collection tasks will be rejected,please check your LogCollector or config your Executor", exec.getActiveCount()));
+        executor.setThreadNamePrefix("collectorAsyncExecutor-");
+        executor.setRejectedExecutionHandler((r, exec) -> log.error("collectorAsyncExecutor thread queue is full,activeCount:{},Subsequent collection tasks will be rejected,please check your LogCollector or config your Executor", exec.getActiveCount()));
         executor.initialize();
         return executor;
     }

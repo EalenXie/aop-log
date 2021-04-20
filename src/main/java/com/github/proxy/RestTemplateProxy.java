@@ -1,5 +1,6 @@
 package com.github.proxy;
 
+import com.github.CollectorExecutor;
 import com.github.DataExtractor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,11 @@ public class RestTemplateProxy {
     private final UriTemplateHandler uriTemplateHandler = initUriTemplateHandler();
     private final RestTemplateCollector restTemplateCollector;
     private String appName;
+    private CollectorExecutor collectorExecutor;
+
+    public void setCollectorExecutor(CollectorExecutor collectorExecutor) {
+        this.collectorExecutor = collectorExecutor;
+    }
 
     public void setAppName(String appName) {
         this.appName = appName;
@@ -167,7 +173,11 @@ public class RestTemplateProxy {
             info.setSuccess(success);
             info.setUrlParam(url.getQuery());
             info.setDesc(desc);
-            collector.collect(info);
+            if (collectorExecutor != null) {
+                collectorExecutor.asyncExecute(collector, info);
+            } else {
+                collector.collect(info);
+            }
         }
         return responseEntity;
     }

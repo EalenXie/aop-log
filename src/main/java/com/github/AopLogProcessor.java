@@ -1,8 +1,10 @@
 package com.github;
 
-import com.github.collector.LogCollectorExecutor;
+import com.github.collector.LogCollector;
+import com.github.collector.NothingCollector;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author EalenXie create on 2020/6/28 15:07
@@ -19,13 +23,19 @@ import java.io.StringWriter;
 @Component
 public class AopLogProcessor {
 
-    private final LogCollectorExecutor logCollectorExecutor;
-
+    private final ApplicationContext applicationContext;
+    private final CollectorExecutor collectorExecutor;
+    private final LogCollector logCollector;
+    private final Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
     private final String appName;
 
-    public AopLogProcessor(@Autowired LogCollectorExecutor logCollectorExecutor) {
-        this.logCollectorExecutor = logCollectorExecutor;
-        this.appName = getAppNameByApplicationContext(logCollectorExecutor.getApplicationContext());
+    public AopLogProcessor(@Autowired ApplicationContext applicationContext,
+                           @Autowired CollectorExecutor collectorExecutor,
+                           @Autowired LogCollector logCollector) {
+        this.applicationContext = applicationContext;
+        this.collectorExecutor = collectorExecutor;
+        this.logCollector = logCollector;
+        this.appName = getAppNameByApplicationContext(applicationContext);
     }
 
     /**
@@ -73,6 +83,27 @@ public class AopLogProcessor {
         return point.proceed();
     }
 
+    /**
+     * 选择一个收集器进行执行
+     */
+    private LogCollector selectLogCollector(Class<? extends LogCollector> clz) {
+        if (clz == NothingCollector.class) {
+            return logCollector;
+        } else {
+            LogCollector collector;
+            try {
+                collector = applicationContext.getBean(clz);
+            } catch (Exception e) {
+                collector = collectors.get(clz);
+                if (collector == null) {
+                    collector = BeanUtils.instantiateClass(clz);
+                    collectors.put(clz, collector);
+                }
+            }
+            return collector;
+        }
+    }
+
 
     /**
      * 方法执行处理记录
@@ -115,9 +146,9 @@ public class AopLogProcessor {
                 data.setSuccess(success);
                 LogData.setCurrent(data);
                 if (aopLog.asyncMode()) {
-                    logCollectorExecutor.asyncExecute(aopLog.collector(), LogData.getCurrent());
+                    collectorExecutor.asyncExecute(selectLogCollector(aopLog.collector()), LogData.getCurrent());
                 } else {
-                    logCollectorExecutor.execute(aopLog.collector(), LogData.getCurrent());
+                    collectorExecutor.execute(selectLogCollector(aopLog.collector()), LogData.getCurrent());
                 }
             }
         }
