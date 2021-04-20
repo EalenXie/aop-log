@@ -187,10 +187,7 @@ public class LogData {
     }
 
     public Date getLogDate() {
-        if (logDate != null) {
-            return (Date) logDate.clone();
-        }
-        return null;
+        return logDate == null ? null : (Date) logDate.clone();
     }
 
     public void setLogDate(Date logDate) {
