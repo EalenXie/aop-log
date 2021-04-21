@@ -1,7 +1,12 @@
 package com.github.proxy;
 
+import com.github.AppNameHelper;
 import com.github.CollectorExecutor;
 import com.github.DataExtractor;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -20,7 +25,8 @@ import java.util.Map;
  * @author EalenXie create on 2020/11/5 19:34
  * 代理了restTemplate主流的请求方法 支持对restTemplate 请求的收集
  */
-public class RestTemplateProxy {
+public class RestTemplateProxy implements ApplicationContextAware {
+
 
     private final RestTemplate restTemplate;
     private final UriTemplateHandler uriTemplateHandler = initUriTemplateHandler();
@@ -28,7 +34,12 @@ public class RestTemplateProxy {
     private String appName;
     private CollectorExecutor collectorExecutor;
 
-    public void setCollectorExecutor(CollectorExecutor collectorExecutor) {
+    @Override
+    public void setApplicationContext(@Autowired ApplicationContext applicationContext) throws BeansException {
+        this.appName = AppNameHelper.getAppNameByApplicationContext(applicationContext);
+    }
+
+    public void setCollectorExecutor(@Autowired CollectorExecutor collectorExecutor) {
         this.collectorExecutor = collectorExecutor;
     }
 
@@ -199,6 +210,4 @@ public class RestTemplateProxy {
             return new HttpEntity<>(null, null);
         }
     }
-
-
 }
