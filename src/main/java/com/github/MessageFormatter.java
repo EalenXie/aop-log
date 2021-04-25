@@ -17,10 +17,6 @@ public final class MessageFormatter {
     }
 
     public static String format(String template, Object... args) {
-        return format(DELIMITER, ESCAPE_CHAR, template, args);
-    }
-
-    public static String format(String delimiter, String escape, String template, Object... args) {
         if (args == null || args.length <= 0) {
             return template;
         }
@@ -30,7 +26,7 @@ public final class MessageFormatter {
         StringBuilder buf = new StringBuilder(template);
         int start = 0;
         for (Object arg : args) {
-            int result = escapeReplace(delimiter, escape, buf, arg, start);
+            int result = escapeReplace(DELIMITER, ESCAPE_CHAR, buf, arg, start);
             start = result;
             if (result == -1) {
                 break;
