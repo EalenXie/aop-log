@@ -1,7 +1,7 @@
 AopLog
 ==================
 
-#### AopLog是基于SpringAop和ThreadLocal实现的一个对请求方法埋点记录与处理的日志工具包。
+#### AopLog是基于SpringAop和ThreadLocal实现的一个对请求方法埋点信息收集与处理的日志工具包。
 
 ![](https://img.shields.io/static/v1?label=release&message=2.4&color=green)
 ![](https://img.shields.io/static/v1?label=jar&message=24k&color=green)
@@ -10,17 +10,17 @@ AopLog
 
 设计目的和场景 : 
 
-1. 使用Spring Aop拦截参数日志目前大部分做法都基本上大同小异,不想日后每个项目工程都写一份这样的Aop拦截处理日志的代码,甚至代码侵入。
-2. 重要的业务接口埋点,我想知道一些相对重要的请求方法的请求参数,响应参数,请求头,以及内部耗时,方法是成功还是失败等等信息。发生错误时我也不知道执行到哪一步发生了异常，是不是某个参数导致出的逻辑问题。
-3. 普通的log.info或warn信息没有所属请求的上下关系,并不方便查看和分析。
-4. 正式环境中,我并不想打印太多无意义的info日志(有些只是为了排查问题打印的日志,程序正常运行时其实毫无意义)，只希望在发生异常时记录日志或者只希望每次请求只记录一条次关键的请求信息。
-5. 日志的收集,我希望将这些请求的埋点信息记录下来，记录的实现方式我自己决定，比如埋点日志打印，常见埋点日志写入数据库，写入到文件，写入队列等等。
-6. 整个埋点日志的记录完全不干扰正常请求方法的流程,收集处理过程异步化,完全不影响正常请求方法的性能与响应。
-7. 只需要通过`@AopLog`注解决定是否埋点记录。
+- 使用Spring AOP拦截方法参数大部分做法基本上大同小异,不用每个项目工程都写AOP拦截处理日志的代码,引入此包即可。
+- 可获取埋点方法的请求参数,响应参数,请求头,以及内部耗时,方法是成功还是失败，自定义步骤记录等等信息。
+- 整个方法完整过程只产生一个埋点信息记录(一个LogData对象)，比如`@Controller`中一次完整的http请求。
+- 收集情况可选，可只在异常时执行收集过程(有些只是为了排查问题打印的日志,程序正常运行时其实毫无意义)。  
+- 埋点信息收集，自行实现收集过程，比如埋点日志打印，常见埋点日志写入数据库，写入到文件，写入队列等等。
+- 埋点信息收集不干扰埋点方法正常流程,收集过程异步化处理(默认,可通过注解的`asyncMode`进行设置),不影响正常请求方法的性能与响应。
+- 只需通过`@AopLog`注解决定是否埋点收集。
 
 
 ### 快速开始  
-#### 项目通过maven的pom.xml引入。[仓库地址](https://mvnrepository.com/artifact/com.github.ealenxie/aop-log/2.4) 
+#### 项目通过 [Maven仓库地址](https://mvnrepository.com/artifact/com.github.ealenxie/aop-log/2.4) 的pom.xml引入。
 ```xml
 
 <dependency>
@@ -35,11 +35,9 @@ AopLog
 compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.4'
 ```
 
+#### @AopLog注解使用，进行埋点收集
 
-
-#### @AopLog注解使用，进行日志记录
-
-直接在类(作用类的所有方法)或类方法(作用于方法)上加上注解`@AopLog`,进行日志记录
+直接在类(作用类的所有方法)或类方法(作用于方法)上加上注解`@AopLog`,进行埋点收集
 
 例如 : 
 
@@ -98,8 +96,8 @@ public class AopLogCollector implements LogCollector {
 2020-09-16 16:01:04.782  INFO 2012 --- [AsyncExecutor-2] name.ealen.infra.advice.AopLogCollector  : {"appName":"app-template","host":"127.0.0.1","port":8080,"clientIp":"192.168.110.1","reqUrl":"http://localhost:8080/app/sayHello","httpMethod":"GET","headers":{"User-Agent":"Apache-HttpClient/4.5.10 (Java/11.0.5)"},"type":"测试","content":"","method":"name.ealen.api.facade.AppController#sayHello","args":null,"respBody":{"code":"200","desc":"OK","message":"请求成功","dateTime":"2020-09-16 16:01:04","body":"hello EalenXie"},"logDate":1600243264780,"costTime":1,"threadName":"http-nio-8080-exec-3","threadId":33,"success":true}
 ```
 
-#### 记录的日志对象LogData属性说明
-**LogData 记录的内容**
+#### 埋点日志对象LogData属性说明
+**LogData 埋点日志对象获取的内容**
 
 | 字段 | 类型  | 注释 |
 | :------- | :------------ | :------------------------------ | 
@@ -108,7 +106,7 @@ public class AopLogCollector implements LogCollector {
 | port | int | 端口号  |
 | clientIp | String  | 请求客户端的Ip       | 
 | reqUrl   | String  | 请求地址 |
-| headers  | Object | 请求头部信息(可选择记录) 默认记录user-agent,content-type |
+| headers  | Object | 请求头部信息(可选择获取) 默认获取user-agent,content-type |
 | type | String  | 操作类型,默认值undefined | 
 | content | String | 方法步骤内容,默认是空,可使用LogData.step进行内容步骤记录
 | method  | String | 请求的本地java方法  | 
@@ -125,11 +123,11 @@ public class AopLogCollector implements LogCollector {
 
 | 选项       | 类型                          | 说明                                               | 默认                 |
 | :--------- | :---------------------------- | :------------------------------------------------- | -------------------- |
-| logOnErr    | boolean               | 仅当发生异常时才记录收集                                    | false   |
+| logOnErr    | boolean               | 仅当发生异常时才收集                                    | false   |
 | type       | String                        | 操作类型                                           | 默认值"undefined"    |
-| headers    | String[]                      | 记录的header信息 ,选择要记录哪些header信息| 默认"User-Agent","content-type"     |
-| args       | boolean                       | 是否记录请求参数                                   | true                |
-| respBody   | boolean                       | 是否记录响应参数                                   | true                |
+| headers    | String[]                      | 获取的header信息 ,选择要获取哪些header信息| 默认"User-Agent","content-type"     |
+| args       | boolean                       | 是否获取请求参数                                   | true                |
+| respBody   | boolean                       | 是否获取响应参数                                   | true                |
 | stackTraceOnErr | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到LogData的content中 | false                |
 | asyncMode | boolean                       |  异步方式收集 | true                |
 | collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认不调整收集器,使用全局的日志收集器 |
