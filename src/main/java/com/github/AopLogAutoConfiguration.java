@@ -40,7 +40,7 @@ public class AopLogAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(name = "collectorAsyncExecutor")
-    public Executor logCollectorAsyncExecutor() {
+    public Executor collectorAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
