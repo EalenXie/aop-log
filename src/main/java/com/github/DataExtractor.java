@@ -113,7 +113,11 @@ public class DataExtractor {
         }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parameterNames.length; i++) {
-            sb.append(parameterNames[i]).append(EQUALS_REG).append(args[i].toString()).append(AND_REG);
+            String parameterValue = "";
+            if(args[i] != null){
+                parameterValue = args[i].toString()
+            }
+            sb.append(parameterNames[i]).append(EQUALS_REG).append(parameterValue).append(AND_REG);
         }
         if (sb.lastIndexOf(AND_REG) != -1) {
             sb.deleteCharAt(sb.lastIndexOf(AND_REG));
