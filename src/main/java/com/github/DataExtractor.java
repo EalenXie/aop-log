@@ -114,8 +114,8 @@ public class DataExtractor {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parameterNames.length; i++) {
             String parameterValue = "";
-            if(args[i] != null){
-                parameterValue = args[i].toString()
+            if (args[i] != null) {
+                parameterValue = args[i].toString();
             }
             sb.append(parameterNames[i]).append(EQUALS_REG).append(parameterValue).append(AND_REG);
         }
