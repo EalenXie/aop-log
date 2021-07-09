@@ -17,11 +17,15 @@ public class ReqInfo {
     /**
      * 请求port
      */
-    private Integer port;
+    private int port;
     /**
      * 请求url
      */
     private String url;
+    /**
+     * 请求header信息
+     */
+    private Object httpHeaders;
     /**
      * 请求method
      */
@@ -38,6 +42,10 @@ public class ReqInfo {
      * 响应参数
      */
     private Object resp;
+    /**
+     * http 返回码
+     */
+    private int statusCode;
     /**
      * 耗时时间
      */
@@ -71,11 +79,11 @@ public class ReqInfo {
         this.host = host;
     }
 
-    public Integer getPort() {
+    public int getPort() {
         return port;
     }
 
-    public void setPort(Integer port) {
+    public void setPort(int port) {
         this.port = port;
     }
 
@@ -85,6 +93,14 @@ public class ReqInfo {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Object getHttpHeaders() {
+        return httpHeaders;
+    }
+
+    public void setHttpHeaders(Object httpHeaders) {
+        this.httpHeaders = httpHeaders;
     }
 
     public String getMethod() {
@@ -151,5 +167,13 @@ public class ReqInfo {
 
     public void setUrlParam(String urlParam) {
         this.urlParam = urlParam;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
 }

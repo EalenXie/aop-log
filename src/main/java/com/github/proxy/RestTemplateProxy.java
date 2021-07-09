@@ -7,10 +7,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -152,20 +149,25 @@ public class RestTemplateProxy implements ApplicationContextAware {
         Object req = null;
         Object resp = null;
         String desc = null;
+        Object httpHeaders = null;
+        int rawStatusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
         try {
             // 请求参数解析
             if (requestEntity != null) {
                 req = extractData(requestEntity.getBody(), requestEntity.getHeaders().getContentType());
+                httpHeaders = requestEntity.getHeaders();
             }
             responseEntity = restTemplate.exchange(url, method, requestEntity, responseType);
             // 请求响应解析
             resp = extractData(responseEntity.getBody(), responseEntity.getHeaders().getContentType());
             // 请求标识
             success = true;
+            rawStatusCode = responseEntity.getStatusCode().value();
             desc = "SUCCESS";
         } catch (RestClientResponseException e) {
             desc = e.getMessage();
             resp = e.getResponseBodyAsString();
+            rawStatusCode = e.getRawStatusCode();
             throw e;
         } catch (Exception e) {
             desc = e.getMessage();
@@ -176,11 +178,13 @@ public class RestTemplateProxy implements ApplicationContextAware {
             info.setHost(url.getHost());
             info.setPort(url.getPort());
             info.setUrl(url.toString());
+            info.setHttpHeaders(httpHeaders);
             info.setMethod(method.name());
             info.setReq(req);
             info.setLogDate(new Date());
             info.setCostTime(System.currentTimeMillis() - startTime);
             info.setResp(resp);
+            info.setStatusCode(rawStatusCode);
             info.setSuccess(success);
             info.setUrlParam(url.getQuery());
             info.setDesc(desc);
