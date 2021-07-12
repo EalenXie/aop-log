@@ -26,11 +26,11 @@ public @interface AopLog {
     boolean logOnErr() default false;
 
     /**
-     * 操作类型(操作分类)
+     * 操作标签(操作分类)
      *
      * @return Operating the tag
      */
-    String type() default "undefined";
+    String tag() default "undefined";
 
     /**
      * 记录的headers ,默认记录 content-type user-agent

@@ -50,9 +50,9 @@ public class LogData {
      */
     private Object headers;
     /**
-     * 操作类型
+     * 操作标签
      */
-    private String type;
+    private String tag;
     /**
      * 方法内容
      */
@@ -146,12 +146,12 @@ public class LogData {
         this.headers = headers;
     }
 
-    public String getType() {
-        return type;
+    public String getTag() {
+        return tag;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getContent() {

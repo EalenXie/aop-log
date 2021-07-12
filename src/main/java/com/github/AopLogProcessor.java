@@ -25,8 +25,10 @@ public class AopLogProcessor {
     private final ApplicationContext applicationContext;
     private final CollectorExecutor collectorExecutor;
     private final LogCollector logCollector;
+    private final SpringElSupporter elSupporter = new SpringElSupporter();
     private final Map<Class<? extends LogCollector>, LogCollector> collectors = new HashMap<>();
     private final String appName;
+
 
     public AopLogProcessor(@Autowired ApplicationContext applicationContext,
                            @Autowired CollectorExecutor collectorExecutor,
@@ -110,10 +112,10 @@ public class AopLogProcessor {
             throw throwable;
         } finally {
             if (!aopLog.logOnErr() || !data.isSuccess()) {
-                MethodSignature signature = (MethodSignature) point.getSignature();
                 data.setAppName(appName);
                 data.setCostTime(System.currentTimeMillis() - data.getLogDate().getTime());
-                data.setType(aopLog.type());
+                MethodSignature signature = (MethodSignature) point.getSignature();
+                data.setTag(elSupporter.getByExpression(signature.getMethod(), point.getTarget(), point.getArgs(), aopLog.tag()).toString());
                 data.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
                 DataExtractor.logHttpRequest(data, aopLog.headers());
                 if (aopLog.args()) {
