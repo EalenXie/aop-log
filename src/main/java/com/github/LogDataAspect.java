@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ import javax.annotation.Resource;
 @Component
 @Aspect
 @EnableAspectJAutoProxy(exposeProxy = true)
-public class LogDataAspect {
+public final class LogDataAspect {
 
     @Resource
     private AopLogProcessor aopLogProcessor;
@@ -33,22 +34,23 @@ public class LogDataAspect {
 
     @Around("aopLogPointCut()")
     public Object note(ProceedingJoinPoint point) throws Throwable {
-        return aopLog(point);
-    }
-
-    /**
-     * @param point aop 切点对象
-     * @return 返回执行结果
-     * @throws Throwable Exceptions in AOP should be thrown out and left to the specific business to handle
-     */
-    private Object aopLog(ProceedingJoinPoint point) throws Throwable {
-        try {
-            LogData.removeCurrent();
-            LogData data = LogData.getCurrent();
-            return aopLogProcessor.proceed(data, point);
-        } finally {
-            LogData.removeCurrent();
+        AopLogConfig config = new AopLogConfig();
+        MethodSignature signature = (MethodSignature) point.getSignature();
+        AopLog aopLog = signature.getMethod().getAnnotation(AopLog.class);
+        if (aopLog == null) {
+            aopLog = point.getTarget().getClass().getAnnotation(AopLog.class);
         }
+        if (aopLog != null) {
+            config.setLogOnErr(aopLog.logOnErr());
+            config.setTag(aopLog.tag());
+            config.setHeaders(aopLog.headers());
+            config.setArgs(aopLog.args());
+            config.setRespBody(aopLog.respBody());
+            config.setStackTraceOnErr(aopLog.stackTraceOnErr());
+            config.setAsyncMode(aopLog.asyncMode());
+            config.setCollector(aopLog.collector());
+        }
+        return aopLogProcessor.proceed(config, point);
     }
 
 }

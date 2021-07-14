@@ -47,28 +47,26 @@ public class AopLogProcessor {
     /**
      * 处理 日志数据切面
      *
-     * @param data  日志数据
-     * @param point 切入point对象
+     * @param config AopLog 配置
+     * @param point  切入point对象
      * @return 返回执行结果
      * @throws Throwable Exceptions in AOP should be thrown out and left to the specific business to handle
      */
-    public Object proceed(LogData data, ProceedingJoinPoint point) throws Throwable {
-        MethodSignature signature = (MethodSignature) point.getSignature();
-        AopLog aopLog = signature.getMethod().getAnnotation(AopLog.class);
-        if (aopLog == null) {
-            aopLog = point.getTarget().getClass().getAnnotation(AopLog.class);
+    public Object proceed(AopLogConfig config, ProceedingJoinPoint point) throws Throwable {
+        try {
+            LogData.removeCurrent();
+            LogData data = LogData.getCurrent();
+            return proceed(config, data, point);
+        } finally {
+            LogData.removeCurrent();
         }
-        if (aopLog != null) {
-            return proceed(aopLog, data, point);
-        }
-        return point.proceed();
     }
 
     /**
      * 选择一个收集器进行执行
      */
     private LogCollector selectLogCollector(Class<? extends LogCollector> clz) {
-        if (clz == NothingCollector.class) {
+        if (clz == NothingCollector.class || clz == null) {
             return logCollector;
         } else {
             LogCollector collector;
@@ -95,7 +93,7 @@ public class AopLogProcessor {
      * @return 返回执行结果
      * @throws Throwable Exceptions in AOP should be thrown out and left to the specific business to handle
      */
-    private Object proceed(AopLog aopLog, LogData data, ProceedingJoinPoint point) throws Throwable {
+    private Object proceed(AopLogConfig aopLog, LogData data, ProceedingJoinPoint point) throws Throwable {
         Object result = null;
         boolean success = false;
         try {
@@ -103,7 +101,7 @@ public class AopLogProcessor {
             success = true;
             return result;
         } catch (Throwable throwable) {
-            if (aopLog.stackTraceOnErr()) {
+            if (aopLog.isStackTraceOnErr()) {
                 try (StringWriter sw = new StringWriter(); PrintWriter writer = new PrintWriter(sw, true)) {
                     throwable.printStackTrace(writer);
                     LogData.step("Fail : \n" + sw);
@@ -111,25 +109,25 @@ public class AopLogProcessor {
             }
             throw throwable;
         } finally {
-            if (!aopLog.logOnErr() || !data.isSuccess()) {
+            if (!aopLog.isLogOnErr() || !data.isSuccess()) {
                 data.setAppName(appName);
                 data.setCostTime(System.currentTimeMillis() - data.getLogDate().getTime());
                 MethodSignature signature = (MethodSignature) point.getSignature();
-                data.setTag(elSupporter.getByExpression(signature.getMethod(), point.getTarget(), point.getArgs(), aopLog.tag()).toString());
+                data.setTag(elSupporter.getByExpression(signature.getMethod(), point.getTarget(), point.getArgs(), aopLog.getTag()).toString());
                 data.setMethod(signature.getDeclaringTypeName() + "#" + signature.getName());
-                DataExtractor.logHttpRequest(data, aopLog.headers());
-                if (aopLog.args()) {
+                DataExtractor.logHttpRequest(data, aopLog.getHeaders());
+                if (aopLog.isArgs()) {
                     data.setArgs(DataExtractor.getArgs(signature.getParameterNames(), point.getArgs()));
                 }
-                if (aopLog.respBody()) {
+                if (aopLog.isRespBody()) {
                     data.setRespBody(DataExtractor.getResult(result));
                 }
                 data.setSuccess(success);
                 LogData.setCurrent(data);
-                if (aopLog.asyncMode()) {
-                    collectorExecutor.asyncExecute(selectLogCollector(aopLog.collector()), LogData.getCurrent());
+                if (aopLog.isAsyncMode()) {
+                    collectorExecutor.asyncExecute(selectLogCollector(aopLog.getCollector()), LogData.getCurrent());
                 } else {
-                    collectorExecutor.execute(selectLogCollector(aopLog.collector()), LogData.getCurrent());
+                    collectorExecutor.execute(selectLogCollector(aopLog.getCollector()), LogData.getCurrent());
                 }
             }
         }
