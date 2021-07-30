@@ -3,7 +3,7 @@ AopLog
 
 #### AopLog是基于SpringAop和ThreadLocal实现的一个对请求方法埋点信息收集与处理的日志工具包。
 
-![](https://img.shields.io/static/v1?label=release&message=2.4&color=green)
+![](https://img.shields.io/static/v1?label=release&message=2.5&color=green)
 ![](https://img.shields.io/static/v1?label=jar&message=24k&color=green)
 ![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 ![](https://img.shields.io/badge/JDK-1.8+-red.svg)
@@ -17,17 +17,16 @@ AopLog
 - 埋点信息收集，自行实现收集过程，比如埋点日志打印，常见埋点日志写入数据库，写入到文件，写入队列等等。
 - 埋点信息收集不干扰埋点方法正常流程,收集过程异步化处理(默认,可通过注解的`asyncMode`进行设置),不影响正常请求方法的性能与响应。
 - 只需通过`@AopLog`注解(或者自定义切面)决定是否埋点收集。
-
 ### 快速开始
 
-#### 项目通过[Maven仓库地址](https://mvnrepository.com/artifact/com.github.ealenxie/aop-log/2.4) 的pom.xml引入。
+#### 项目通过[Maven仓库地址](https://mvnrepository.com/artifact/com.github.ealenxie/aop-log/2.5) 的pom.xml引入。
 
 ```xml
 
 <dependency>
     <groupId>com.github.ealenxie</groupId>
     <artifactId>aop-log</artifactId>
-    <version>2.4</version>
+    <version>2.5</version>
 </dependency>
 
 ```
@@ -35,7 +34,7 @@ AopLog
 #### 或者通过gradle引入
 
 ```gradle
-compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.4'
+compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.5'
 ```
 
 #### @AopLog注解使用，进行埋点收集
