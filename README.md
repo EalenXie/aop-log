@@ -16,7 +16,7 @@ AopLog
 - 收集情况可选，可只在异常时执行收集过程(有些只是为了排查问题打印的日志,程序正常运行时其实毫无意义)。  
 - 埋点信息收集，自行实现收集过程，比如埋点日志打印，常见埋点日志写入数据库，写入到文件，写入队列等等。
 - 埋点信息收集不干扰埋点方法正常流程,收集过程异步化处理(默认,可通过注解的`asyncMode`进行设置),不影响正常请求方法的性能与响应。
-- 只需通过`@AopLog`注解决定是否埋点收集。
+- 只需通过`@AopLog`注解(或者自定义切面)决定是否埋点收集。
 
 
 ### 快速开始  
@@ -107,8 +107,8 @@ public class AopLogCollector implements LogCollector {
 | clientIp | String  | 请求客户端的Ip       | 
 | reqUrl   | String  | 请求地址 |
 | headers  | Object | 请求头部信息(可选择获取) 默认获取user-agent,content-type |
-| type | String  | 操作类型,默认值undefined | 
-| content | String | 方法步骤内容,默认是空,可使用LogData.step进行内容步骤记录
+| tag | String  | 操作标签,默认值undefined | 
+| content | String | 方法步骤内容,默认是空,可使用LogData.step进行内容步骤记录|
 | method  | String | 请求的本地java方法  | 
 | args     | Object | 方法请求参数  |
 | respBody | Object | 方法响应参数  |
@@ -123,13 +123,13 @@ public class AopLogCollector implements LogCollector {
 
 | 选项       | 类型                          | 说明                                               | 默认                 |
 | :--------- | :---------------------------- | :------------------------------------------------- | -------------------- |
-| logOnErr    | boolean               | 仅当发生异常时才收集                                    | false   |
-| type       | String                        | 操作类型                                           | 默认值"undefined"    |
-| headers    | String[]                      | 获取的header信息 ,选择要获取哪些header信息| 默认"User-Agent","content-type"     |
-| args       | boolean                       | 是否获取请求参数                                   | true                |
-| respBody   | boolean                       | 是否获取响应参数                                   | true                |
-| stackTraceOnErr | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到LogData的content中 | false                |
-| asyncMode | boolean                       |  异步方式收集 | true                |
+| logOnErr    | boolean   | 仅当发生异常时才收集               | false   |
+| tag       | String       | 操作标签                                           | 默认值"undefined"    |
+| headers    | String[]   | 获取的header信息 ,选择要获取哪些header信息| 默认"User-Agent","content-type"     |
+| args       | boolean        | 是否获取请求参数                                   | true                |
+| respBody   | boolean      | 是否获取响应参数                                   | true                |
+| stackTraceOnErr | boolean      | 当目标方法发生异常时,是否追加异常堆栈信息到LogData的content中 | false                |
+| asyncMode | boolean   |  异步方式收集 | true       |
 | collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认不调整收集器,使用全局的日志收集器 |
 
 
@@ -149,7 +149,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * @author EalenXie create on 2020/6/22 14:28
  */
-@AopLog(type = "测试",stackTraceOnErr = true)
+@AopLog(tag = "测试",stackTraceOnErr = true)
 @RestController
 public class AppController {
 
@@ -172,11 +172,55 @@ public class AppController {
 此时再次接口调用 `/say/hello` 测试即可看看到控制台打印出结果，重点观察content字段 : 
 
 ```
-2020-09-16 17:26:20.285  INFO 3284 --- [AsyncExecutor-2] name.ealen.infra.advice.AopLogCollector  : {"appName":"app-template","host":"127.0.0.1","port":8080,"clientIp":"192.168.110.1","reqUrl":"http://localhost:8080/app/sayHello","httpMethod":"GET","headers":{"User-Agent":"Apache-HttpClient/4.5.10 (Java/11.0.5)"},"type":"测试","content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n","method":"name.ealen.api.facade.AppController#sayHello","args":null,"respBody":{"code":"200","desc":"OK","message":"请求成功","dateTime":"2020-09-16 17:26:20","body":"hello EalenXie"},"logDate":1600248380283,"costTime":1,"threadName":"http-nio-8080-exec-2","threadId":32,"success":true}
+2020-09-16 17:26:20.285  INFO 3284 --- [AsyncExecutor-2] name.ealen.infra.advice.AopLogCollector  : {"appName":"app-template","host":"127.0.0.1","port":8080,"clientIp":"192.168.110.1","reqUrl":"http://localhost:8080/app/sayHello","httpMethod":"GET","headers":{"User-Agent":"Apache-HttpClient/4.5.10 (Java/11.0.5)"},"tag":"测试","content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n","method":"name.ealen.api.facade.AppController#sayHello","args":null,"respBody":{"code":"200","desc":"OK","message":"请求成功","dateTime":"2020-09-16 17:26:20","body":"hello EalenXie"},"logDate":1600248380283,"costTime":1,"threadName":"http-nio-8080-exec-2","threadId":32,"success":true}
 ```
 ```
 "content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n"
 ```
+
+#### 不通过@AopLog注解,通过自定义切面进行收集
+
+自定义切面注入`AopLogProcessor`,调用`proceed(config, point)`即可
+
+```java
+
+
+import com.github.AopLogConfig;
+import com.github.AopLogProcessor;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+
+/**
+ * Created by EalenXie on 2021/7/14 10:29
+ */
+@Aspect
+@Component
+public class CustomLogDataAspect {
+
+    @Resource
+    private AopLogProcessor aopLogProcessor;
+
+    @Pointcut("execution(public * com.test.web.TestController.*(..))")
+    public void test(){
+        //ig
+    }
+
+    @Around("test()")
+    public Object note(ProceedingJoinPoint point) throws Throwable {
+        AopLogConfig config = new AopLogConfig();
+        config.setTag("操作标签");
+        config.setStackTraceOnErr(false);
+        return aopLogProcessor.proceed(config, point);
+    }
+}
+
+```
+
 
 #### Change Notes:
 
