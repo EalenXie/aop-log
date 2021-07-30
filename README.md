@@ -8,19 +8,20 @@ AopLog
 ![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 ![](https://img.shields.io/badge/JDK-1.8+-red.svg)
 
-设计目的和场景 : 
+设计目的和场景 :
 
 - 使用Spring AOP拦截方法参数大部分做法基本上大同小异,不用每个项目工程都写AOP拦截处理日志的代码,引入此包即可。
 - 可获取埋点方法的请求参数,响应参数,请求头,以及内部耗时,方法是成功还是失败，自定义步骤记录等等信息。
 - 整个方法完整过程只产生一个埋点信息记录(一个LogData对象)，比如`@Controller`中一次完整的http请求。
-- 收集情况可选，可只在异常时执行收集过程(有些只是为了排查问题打印的日志,程序正常运行时其实毫无意义)。  
+- 收集情况可选，可只在异常时执行收集过程(有些只是为了排查问题打印的日志,程序正常运行时其实毫无意义)。
 - 埋点信息收集，自行实现收集过程，比如埋点日志打印，常见埋点日志写入数据库，写入到文件，写入队列等等。
 - 埋点信息收集不干扰埋点方法正常流程,收集过程异步化处理(默认,可通过注解的`asyncMode`进行设置),不影响正常请求方法的性能与响应。
 - 只需通过`@AopLog`注解(或者自定义切面)决定是否埋点收集。
 
+### 快速开始
 
-### 快速开始  
 #### 项目通过[Maven仓库地址](https://mvnrepository.com/artifact/com.github.ealenxie/aop-log/2.4) 的pom.xml引入。
+
 ```xml
 
 <dependency>
@@ -30,7 +31,9 @@ AopLog
 </dependency>
 
 ```
+
 #### 或者通过gradle引入
+
 ```gradle
 compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.4'
 ```
@@ -39,11 +42,11 @@ compile group: 'com.github.ealenxie', name: 'aop-log', version: '2.4'
 
 直接在类(作用类的所有方法)或类方法(作用于方法)上加上注解`@AopLog`,进行埋点收集
 
-例如 : 
+例如 :
 
 ```java
 
-@AopLog(type = "测试接口",stackTraceOnErr = true)
+@AopLog(type = "测试接口", stackTraceOnErr = true)
 @RestController
 public class AppController {
 
@@ -78,6 +81,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AopLogCollector implements LogCollector {
     private ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void collect(LogData logData) {
         try {
@@ -88,15 +92,17 @@ public class AopLogCollector implements LogCollector {
     }
 }
 ```
+
 配置`@Component`的全局日志收集器只能配置一个。
 
+接口调用 `/say/hello` 测试即可看看到控制台打印出结果 :
 
-接口调用 `/say/hello` 测试即可看看到控制台打印出结果 : 
 ```
 2020-09-16 16:01:04.782  INFO 2012 --- [AsyncExecutor-2] name.ealen.infra.advice.AopLogCollector  : {"appName":"app-template","host":"127.0.0.1","port":8080,"clientIp":"192.168.110.1","reqUrl":"http://localhost:8080/app/sayHello","httpMethod":"GET","headers":{"User-Agent":"Apache-HttpClient/4.5.10 (Java/11.0.5)"},"type":"测试","content":"","method":"name.ealen.api.facade.AppController#sayHello","args":null,"respBody":{"code":"200","desc":"OK","message":"请求成功","dateTime":"2020-09-16 16:01:04","body":"hello EalenXie"},"logDate":1600243264780,"costTime":1,"threadName":"http-nio-8080-exec-3","threadId":33,"success":true}
 ```
 
 #### 埋点日志对象LogData属性说明
+
 **LogData 埋点日志对象获取的内容**
 
 | 字段 | 类型  | 注释 |
@@ -118,7 +124,6 @@ public class AopLogCollector implements LogCollector {
 | threadId  | long | 线程Id |
 | success  | boolean | 执行状态,成功(true)/异常(false) | 
 
-
 #### AopLog 注解选项说明
 
 | 选项       | 类型                          | 说明                                               | 默认                 |
@@ -132,10 +137,10 @@ public class AopLogCollector implements LogCollector {
 | asyncMode | boolean   |  异步方式收集 | true       |
 | collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认不调整收集器,使用全局的日志收集器 |
 
-
 #### LogData的step方法。
+
 记录步骤。(如果某些重要步骤希望被记录下来)
-例如 : 
+例如 :
 
 ```java
 
@@ -149,7 +154,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * @author EalenXie create on 2020/6/22 14:28
  */
-@AopLog(tag = "测试",stackTraceOnErr = true)
+@AopLog(tag = "测试", stackTraceOnErr = true)
 @RestController
 public class AppController {
 
@@ -169,11 +174,12 @@ public class AppController {
 
 ```
 
-此时再次接口调用 `/say/hello` 测试即可看看到控制台打印出结果，重点观察content字段 : 
+此时再次接口调用 `/say/hello` 测试即可看看到控制台打印出结果，重点观察content字段 :
 
 ```
 2020-09-16 17:26:20.285  INFO 3284 --- [AsyncExecutor-2] name.ealen.infra.advice.AopLogCollector  : {"appName":"app-template","host":"127.0.0.1","port":8080,"clientIp":"192.168.110.1","reqUrl":"http://localhost:8080/app/sayHello","httpMethod":"GET","headers":{"User-Agent":"Apache-HttpClient/4.5.10 (Java/11.0.5)"},"tag":"测试","content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n","method":"name.ealen.api.facade.AppController#sayHello","args":null,"respBody":{"code":"200","desc":"OK","message":"请求成功","dateTime":"2020-09-16 17:26:20","body":"hello EalenXie"},"logDate":1600248380283,"costTime":1,"threadName":"http-nio-8080-exec-2","threadId":32,"success":true}
 ```
+
 ```
 "content":"1. 第一步执行完成\n2. 第二步执行完成\n3. service的方法执行完成\n"
 ```
@@ -197,6 +203,7 @@ import javax.annotation.Resource;
 
 /**
  * Created by EalenXie on 2021/7/14 10:29
+ * 自定义切面
  */
 @Aspect
 @Component
@@ -204,23 +211,29 @@ public class CustomLogDataAspect {
 
     @Resource
     private AopLogProcessor aopLogProcessor;
+    private static final AopLogConfig CONFIG;
 
+    static {
+        CONFIG = new AopLogConfig();
+        CONFIG.setTag("操作标签");
+        CONFIG.setStackTraceOnErr(false);
+        CONFIG.setHeaders(new String[]{"content-type", "user-agent"});
+    }
+
+    // 自定义切点 execution(public * com.test.web.TestController.*(..))
     @Pointcut("execution(public * com.test.web.TestController.*(..))")
-    public void test(){
+    public void test() {
         //ig
     }
 
+    // 请使用环绕通知 @Around()
     @Around("test()")
     public Object note(ProceedingJoinPoint point) throws Throwable {
-        AopLogConfig config = new AopLogConfig();
-        config.setTag("操作标签");
-        config.setStackTraceOnErr(false);
-        return aopLogProcessor.proceed(config, point);
+        return aopLogProcessor.proceed(CONFIG, point);
     }
 }
 
 ```
-
 
 #### Change Notes:
 
