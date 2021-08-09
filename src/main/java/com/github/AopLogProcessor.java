@@ -7,6 +7,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.PrintWriter;
@@ -36,9 +37,26 @@ public class AopLogProcessor {
         this.applicationContext = applicationContext;
         this.collectorExecutor = collectorExecutor;
         this.logCollector = logCollector;
-        this.appName = AppNameHelper.getAppNameByApplicationContext(applicationContext);
+        this.appName = getAppName(applicationContext);
     }
 
+    public String getAppName(ApplicationContext applicationContext) {
+        Environment environment = applicationContext.getEnvironment();
+        String name = environment.getProperty("spring.application.name");
+        if (name != null) {
+            return name;
+        }
+        if (applicationContext.getId() != null) {
+            return applicationContext.getId();
+        }
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            if ("main".equals(stackTraceElement.getMethodName())) {
+                return stackTraceElement.getFileName();
+            }
+        }
+        return applicationContext.getApplicationName();
+    }
 
     public String getAppName() {
         return appName;
