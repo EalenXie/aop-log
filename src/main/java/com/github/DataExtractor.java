@@ -176,7 +176,9 @@ public class DataExtractor {
             data.setHttpMethod(request.getMethod());
             Map<String, String> headersMap = new HashMap<>(8);
             for (String header : headers) {
-                headersMap.put(header, request.getHeader(header));
+                if (header != null && header.trim().length() > 0) {
+                    headersMap.put(header, request.getHeader(header));
+                }
             }
             data.setHeaders(headersMap);
         }
