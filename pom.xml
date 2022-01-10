@@ -30,8 +30,8 @@
         <developerConnection>https://github.com/EalenXie</developerConnection>
     </scm>
     <properties>
-        <spring-boot-starter-web.version>2.3.3.RELEASE</spring-boot-starter-web.version>
-        <aspectjweaver.version>1.9.6</aspectjweaver.version>
+        <spring-boot-starter-web.version>2.6.2</spring-boot-starter-web.version>
+        <aspectjweaver.version>1.9.7</aspectjweaver.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
