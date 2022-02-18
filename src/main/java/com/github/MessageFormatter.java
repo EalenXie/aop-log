@@ -23,16 +23,19 @@ public final class MessageFormatter {
         if (template == null || template.isEmpty()) {
             return EMPTY;
         }
-        StringBuilder buf = new StringBuilder(template);
-        int start = 0;
-        for (Object arg : args) {
-            int result = escapeReplace(DELIMITER, ESCAPE_CHAR, buf, arg, start);
-            start = result;
-            if (result == -1) {
-                break;
+        if (template.contains(DELIMITER)) {
+            StringBuilder buf = new StringBuilder(template);
+            int start = 0;
+            for (Object arg : args) {
+                int result = escapeReplace(DELIMITER, ESCAPE_CHAR, buf, arg, start);
+                start = result;
+                if (result == -1) {
+                    break;
+                }
             }
+            return buf.toString();
         }
-        return buf.toString();
+        return template;
     }
 
 
