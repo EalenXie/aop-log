@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * 执行器 使用收集器执行收集过程
  */
 @Component
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 public class CollectorExecutor {
 
     /**
