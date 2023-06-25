@@ -17,6 +17,7 @@ AopLog
 - 埋点信息收集，自行实现收集过程，比如埋点日志打印，常见埋点日志写入数据库，写入到文件，写入队列等等。
 - 埋点信息收集不干扰埋点方法正常流程,收集过程异步化处理(默认,可通过注解的`asyncMode`进行设置),不影响正常请求方法的性能与响应。
 - 只需通过`@AopLog`注解(或者自定义切面)决定是否埋点收集。
+
 ### 快速开始
 
 #### 项目通过[Maven仓库地址](https://mvnrepository.com/artifact/com.github.ealenxie/aop-log/2.5) 的pom.xml引入。
@@ -104,37 +105,37 @@ public class AopLogCollector implements LogCollector {
 
 **LogData 埋点日志对象获取的内容**
 
-| 字段 | 类型  | 注释 |
-| :------- | :------------ | :------------------------------ | 
-| appName | String | 应用名称|
-| host | String | 主机  |
-| port | int | 端口号  |
-| clientIp | String  | 请求客户端的Ip       | 
-| reqUrl   | String  | 请求地址 |
-| headers  | Object | 请求头部信息(可选择获取) 默认获取user-agent,content-type |
-| tag | String  | 操作标签,默认值undefined | 
-| content | String | 方法步骤内容,默认是空,可使用LogData.step进行内容步骤记录|
-| method  | String | 请求的本地java方法  | 
-| args     | Object | 方法请求参数  |
-| respBody | Object | 方法响应参数  |
-| costTime | long | 整个方法内部耗时|
-| logDate  | Date | Log产生时间,LogData对象初始化的时间 |
-| threadName  | String | 线程名称|
-| threadId  | long | 线程Id |
-| success  | boolean | 执行状态,成功(true)/异常(false) | 
+| 字段         | 类型      | 注释                                        |
+|:-----------|:--------|:------------------------------------------|
+| appName    | String  | 应用名称                                      |
+| host       | String  | 主机                                        |
+| port       | int     | 端口号                                       |
+| clientIp   | String  | 请求客户端的Ip                                  | 
+| reqUrl     | String  | 请求地址                                      |
+| headers    | Object  | 请求头部信息(可选择获取) 默认获取user-agent,content-type |
+| tag        | String  | 操作标签,默认值undefined                         | 
+| content    | String  | 方法步骤内容,默认是空,可使用LogData.step进行内容步骤记录       |
+| method     | String  | 请求的本地java方法                               | 
+| args       | Object  | 方法请求参数                                    |
+| respBody   | Object  | 方法响应参数                                    |
+| costTime   | long    | 整个方法内部耗时                                  |
+| logDate    | Date    | Log产生时间,LogData对象初始化的时间                   |
+| threadName | String  | 线程名称                                      |
+| threadId   | long    | 线程Id                                      |
+| success    | boolean | 执行状态,成功(true)/异常(false)                   | 
 
 #### AopLog 注解选项说明
 
-| 选项       | 类型                          | 说明                                               | 默认                 |
-| :--------- | :---------------------------- | :------------------------------------------------- | -------------------- |
-| logOnErr    | boolean   | 仅当发生异常时才收集               | false   |
-| tag       | String       | 操作标签                                           | 默认值"undefined"    |
-| headers    | String[]   | 获取的header信息 ,选择要获取哪些header信息| 默认"User-Agent","content-type"     |
-| args       | boolean        | 是否获取请求参数                                   | true                |
-| respBody   | boolean      | 是否获取响应参数                                   | true                |
-| stackTraceOnErr | boolean      | 当目标方法发生异常时,是否追加异常堆栈信息到LogData的content中 | false                |
-| asyncMode | boolean   |  异步方式收集 | true       |
-| collector  | Class<? extends LogCollector> | 指定日志收集器                                     | 默认不调整收集器,使用全局的日志收集器 |
+| 选项              | 类型                            | 说明                                     | 默认                            |
+|:----------------|:------------------------------|:---------------------------------------|-------------------------------|
+| logOnErr        | boolean                       | 仅当发生异常时才收集                             | false                         |
+| tag             | String                        | 操作标签                                   | 默认值"undefined"                |
+| headers         | String[]                      | 获取的header信息 ,选择要获取哪些header信息           | 默认"User-Agent","content-type" |
+| args            | boolean                       | 是否获取请求参数                               | true                          |
+| respBody        | boolean                       | 是否获取响应参数                               | true                          |
+| stackTraceOnErr | boolean                       | 当目标方法发生异常时,是否追加异常堆栈信息到LogData的content中 | false                         |
+| asyncMode       | boolean                       | 异步方式收集                                 | true                          |
+| collector       | Class<? extends LogCollector> | 指定日志收集器                                | 默认不调整收集器,使用全局的日志收集器           |
 
 #### LogData的step方法。
 
